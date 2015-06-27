@@ -1,0 +1,21 @@
+{
+    "name" : "dionysiusmarquis",
+    "version" : "0.1.0",
+    "author" : "Dionysius Marquis",
+    "private" : true,
+
+    "devDependencies" : {
+        "grunt" :                       "~0.4.0",
+        "grunt-contrib-cssmin":         "*",
+
+        "grunt-contrib-sass":           "*",
+        "grunt-contrib-uglify":         "*",
+        "grunt-contrib-watch":          "*",
+        "grunt-contrib-concat":         "*",
+        "grunt-text-replace":           "*", 
+        "grunt-cssc":                   "*",
+        "grunt-htmlhint":               "*",
+        "matchdep":                     "*",
+        "grunt-glsl-threejs":           "*"
+    }
+}

@@ -1,0 +1,2 @@
+if(typeof dm === "undefined") dm = new Object();
+if(typeof dm.ShaderLib === "undefined") dm.ShaderLib = new Object();

@@ -1,0 +1,503 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ab",
+				"absolute"
+			],
+			[
+				"styl",
+				"styl=〔attribute〕"
+			],
+			[
+				"we",
+				"-webkit-animation"
+			],
+			[
+				"bo",
+				"border"
+			],
+			[
+				"pa",
+				"padding"
+			],
+			[
+				"ren",
+				"renderer〔argument〕"
+			],
+			[
+				"render",
+				"renderer〔argument〕"
+			],
+			[
+				"re",
+				"renderer"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/js/core/DisplayObject.js",
+			"settings":
+			{
+				"buffer_size": 17768,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "gruntfile.js",
+			"settings":
+			{
+				"buffer_size": 2701,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "package.json",
+			"settings":
+			{
+				"buffer_size": 516,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/SASS Build/SASS - Compressed.sublime-build",
+					""
+				],
+				[
+					"Packages/SASS Build/SASS.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/SASS Build/SASS - Compressed.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "git",
+		"selected_items":
+		[
+			[
+				"git",
+				"Git: Commit history"
+			],
+			[
+				"g",
+				"Grunt"
+			],
+			[
+				"grun",
+				"Grunt"
+			],
+			[
+				"grunt",
+				"Grunt"
+			],
+			[
+				"packa",
+				"Package Control: Discover Packages"
+			],
+			[
+				"pakc",
+				"Package Control: Install Package"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: List Packages"
+			],
+			[
+				"PA",
+				"Package Control: Disable Package"
+			],
+			[
+				"package",
+				"Package Control: Enable Package"
+			],
+			[
+				"css",
+				"CSS Completions: Delete Cache"
+			],
+			[
+				"sass",
+				"Build With: SASS"
+			],
+			[
+				"pacc",
+				"Package Control: Enable Package"
+			],
+			[
+				"git:",
+				"Git: Status"
+			],
+			[
+				"",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 593.0
+	},
+	"console":
+	{
+		"height": 333.0,
+		"history":
+		[
+			"npm",
+			"document",
+			"Concat",
+			"concat",
+			"command:concat",
+			"concat",
+			"CSS Completions",
+			"CSS Completions: Delete Cache",
+			"exit",
+			"?",
+			"help",
+			"ls",
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/build",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/build/js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/src",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/src/js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/src/js/core"
+	],
+	"file_history":
+	[
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/build/js/dionysuismarquis.core.min.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/DisplayObject.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/gruntfile.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/Utils.js",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/SublimeGrunt.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/Grunt/SublimeGrunt.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/SideBarEnhancements/Side Bar.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/package.json",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/npm-debug.log",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/dionysiusmarquis.sublime-project",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/sublime-concat/concat.py",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/ColorPicker/ColorPicker.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/Utils.min.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/EventDispatcher.min.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/DisplayObject.min.js",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/files.txt",
+		"/Users/dionysiusmarquis/Documents/workspaceLibraries/html/dionysiusmarquis/core/files.txt",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/CombineAndMinfiy/readme.txt",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/CombineAndMinfiy/CombineAndMinfiy.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/js/fluids.min.js",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/Minify.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/Minify/Minify.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/css/style.css",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/css/style.scss",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/CSS3/CSS3.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/css/main.css",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/SublimeCodeIntel/SublimeCodeIntel.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/CSS Extended Completions/css_style_completions.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/Package Control/Package Control.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/SublimeCodeIntel.sublime-settings",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/js/three.js",
+		"/Users/dionysiusmarquis/Documents/workspace/150414_dionysiusmarquis_website/webroot/assets/js/fluids.js",
+		"/Volumes/Macintosh HD 2/temp/nerdindustries/HTML/workspaces/workspaceTest/fragment_shader_test/js/fluids.js",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/Git/Git.sublime-settings",
+		"/Volumes/Macintosh HD 2/temp/nerdindustries/HTML/workspaces/workspaceTest/fragment_shader_test/js/three.js",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/Default (OSX).sublime-mousemap",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/SublimeCodeIntel/Default (OSX).sublime-mousemap",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/SublimeCodeIntel/Default (OSX).sublime-keymap",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/Package Control.sublime-settings",
+		"/Users/dionysiusmarquis/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"addDefault",
+			"addDefaultListerner",
+			"MathUtil",
+			"DisplayObject=",
+			"Display",
+			"MathUtils",
+			"Math",
+			"∏"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/js/core/DisplayObject.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 17768,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1477,
+								1477
+							]
+						],
+						"settings":
+						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html"
+								},
+								{
+									"characters": ".#",
+									"selector": "text.html"
+								}
+							],
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "gruntfile.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2701,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2516,
+								2516
+							]
+						],
+						"settings":
+						{
+							"auto_complete": false,
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html"
+								},
+								{
+									"characters": ".#",
+									"selector": "text.html"
+								}
+							],
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "package.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 516,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								225,
+								218
+							]
+						],
+						"settings":
+						{
+							"auto_complete": true,
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html"
+								},
+								{
+									"characters": ".#",
+									"selector": "text.html"
+								}
+							],
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.CSS Extended Completions":
+	{
+		"height": 0.0
+	},
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 100.0
+	},
+	"pinned_build_system": "",
+	"project": "dionysiusmarquis.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 348.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
