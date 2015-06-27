@@ -3,3 +3,5 @@
 .sass-cache
 .sublime-grunt.cache
 dionysiusmarquis.sublime-project
+dionysiusmarquis.sublime-workspace
+node_modules
