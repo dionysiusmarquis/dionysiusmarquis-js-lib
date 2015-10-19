@@ -1,0 +1,1 @@
+if(typeof dm === "undefined") dm = new Object();
