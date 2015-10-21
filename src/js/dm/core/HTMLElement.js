@@ -18,6 +18,12 @@ dm.HTMLElement = function(element, id, className, style) {
 	this.element = null;
 	this.children = new Array();
 	this.transitions = new Object();
+
+	if(!element)
+		throw new Error("dm.HTMLElement: element attribute can not be null.");
+
+	if(!(element instanceof HTMLElement))
+		throw new Error("dm.HTMLElement: " + element.constructor.name + " not allowed as element attribute.");
 	
 	function addDefaultListener() {
 		if (typeof document.body.style['transition'] != "undefined")
