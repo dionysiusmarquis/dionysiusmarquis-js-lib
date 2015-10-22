@@ -39,14 +39,14 @@ dm.Math = {
 	angle : function(x1, y1, x2, y2) {
 		var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 		return angle < 0 ? angle + 360 : angle;
-    },
+	},
 
-    percSin : function(percentage, scale, offset, digits) {
-    	scale = 1/scale || 1;
-    	offset = offset || 0;
-    	digits = 10 * digits || 100;
-    	return Math.round(Math.sin((offset + percentage) * (Math.PI/2 * scale)) * digits) / digits;
-    }
+	percSin : function(percentage, scale, offset, digits) {
+		scale = 1/scale || 1;
+		offset = offset || 0;
+		digits = 10 * digits || 100;
+		return Math.round(Math.sin((offset + percentage) * (Math.PI/2 * scale)) * digits) / digits;
+	}
 };
 
 dm.Utils.Color = {
@@ -88,6 +88,47 @@ dm.Utils.Color = {
 		
 		return rgb;
 	},
+
+	rgb2hsv : function (r, g, b) {
+		var rr, gg, bb,
+			r = r / 255,
+			g = g / 255,
+			b = b / 255,
+			h, s,
+			v = Math.max(r, g, b),
+			diff = v - Math.min(r, g, b),
+
+		diffc = function(c){
+			return (v - c) / 6 / diff + 1 / 2;
+		};
+
+		if (diff == 0) {
+			h = s = 0;
+		} else {
+			s = diff / v;
+			rr = diffc(r);
+			gg = diffc(g);
+			bb = diffc(b);
+
+			if (r === v) {
+				h = bb - gg;
+			}else if (g === v) {
+				h = (1 / 3) + rr - bb;
+			}else if (b === v) {
+				h = (2 / 3) + gg - rr;
+			}
+			if (h < 0) {
+				h += 1;
+			}else if (h > 1) {
+				h -= 1;
+			}
+		}
+		return [
+			Math.round(h * 360),
+			Math.round(s * 100),
+			Math.round(v * 100)
+		];
+	},
 	
 	hsv2hex : function(h, s, v) {
 		var rgb = hsv2rgb(h, s, v);
@@ -96,17 +137,22 @@ dm.Utils.Color = {
 		}).join('');
 	},
 
-	rgbToHex : function(r, g, b) {
-	    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1,7);
+	rgb2hex : function(r, g, b) {
+		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1,7);
 	},
 	
-	hexToRgb : function(hex) {
+	hex2rgb : function(hex) {
 		var bigint = parseInt(hex, 16);
-	    var r = (bigint >> 16) & 255;
-	    var g = (bigint >> 8) & 255;
-	    var b = bigint & 255;
+		var r = (bigint >> 16) & 255;
+		var g = (bigint >> 8) & 255;
+		var b = bigint & 255;
 
-	    return [r, g, b];
+		return [r, g, b];
+	},
+
+	interpolateHSV : function(hsv1, hsv2, percentage) {
+		var hue = dm.Math.interpolate();
+		var saturation = Math.abs(val - 50)/50;
 	}
 };
 
@@ -163,12 +209,12 @@ dm.Utils.Draw = {
 
 dm.Utils.Object = {
 	clone : function(object) {
-	    if(object === null || typeof object != "object") return object;
-	    var copy = new object.constructor();
-	    for (var attr in object) {
-	        if (object.hasOwnProperty(attr)) copy[attr] = object[attr];
-	    }
-	    return copy;
+		if(object === null || typeof object != "object") return object;
+		var copy = new object.constructor();
+		for (var attr in object) {
+			if (object.hasOwnProperty(attr)) copy[attr] = object[attr];
+		}
+		return copy;
 	},
 	
 	merge : function(target, object, createObject) {
@@ -180,13 +226,13 @@ dm.Utils.Object = {
 	},
 
 	toQueryString : function(object){
-	    var k = Object.keys(object);
-	    var s = "";
-	    for(var i=0;i<k.length;i++) {
-	        s += k[i] + "=" + encodeURIComponent(object[k[i]]);
-	        if (i != k.length -1) s += "&";
-	    }
-	    return s;
+		var k = Object.keys(object);
+		var s = "";
+		for(var i=0;i<k.length;i++) {
+			s += k[i] + "=" + encodeURIComponent(object[k[i]]);
+			if (i != k.length -1) s += "&";
+		}
+		return s;
 	 }
 };
 
@@ -311,13 +357,13 @@ dm.Utils.Form = {
 	},
 	
 	toQueryString : function(obj) {
-	    var parts = [];
-	    for (var i in obj) {
-	        if (obj.hasOwnProperty(i)) {
-	            parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
-	        }
-	    }
-	    return parts.join("&");
+		var parts = [];
+		for (var i in obj) {
+			if (obj.hasOwnProperty(i)) {
+				parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
+			}
+		}
+		return parts.join("&");
 	},
 	
 	getMultiPartFormData : function(form, boundary, filesData) {
@@ -362,8 +408,8 @@ dm.Utils.Form = {
 	},
 
 	validateEmail: function(email) {
-	    var regex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-	    return regex.test(email);
+		var regex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+		return regex.test(email);
 	}
 };
 
@@ -373,16 +419,16 @@ dm.Utils.CSS = {
 		var fontFaces = new Array();
 
 		var i, j, fontFamily;
-        for (i = 0; i < sheets.length; i += 1) {
-            var rules = sheets[i].cssRules;
+		for (i = 0; i < sheets.length; i += 1) {
+			var rules = sheets[i].cssRules;
 
-            for (j = 0; j < rules.length; j += 1)
-                if (rules[j].constructor === CSSFontFaceRule) {
-                	fontFamily = rules[j].style.getPropertyValue("font-family").replace(/'|"/g, "");
-                	if(fontFaces.indexOf(fontFamily) == -1)
-                		fontFaces.push(fontFamily);
-                }
-        }
-        return fontFaces;
-    }
+			for (j = 0; j < rules.length; j += 1)
+				if (rules[j].constructor === CSSFontFaceRule) {
+					fontFamily = rules[j].style.getPropertyValue("font-family").replace(/'|"/g, "");
+					if(fontFaces.indexOf(fontFamily) == -1)
+						fontFaces.push(fontFamily);
+				}
+		}
+		return fontFaces;
+	}
 };
