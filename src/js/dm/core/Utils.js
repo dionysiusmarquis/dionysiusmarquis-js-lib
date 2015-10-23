@@ -131,7 +131,7 @@ dm.Utils.Color = {
 	},
 	
 	hsv2hex : function(h, s, v) {
-		var rgb = hsv2rgb(h, s, v);
+		var rgb = dm.Utils.Color.hsv2rgb(h, s, v);
 		return '#' + rgb.map(function(x) {
 			return ("0" + x.toString(16)).slice(-2);
 		}).join('');
@@ -142,7 +142,7 @@ dm.Utils.Color = {
 	},
 	
 	hex2rgb : function(hex) {
-		var bigint = parseInt(hex, 16);
+		var bigint = parseInt(hex.replace("#", ""), 16);
 		var r = (bigint >> 16) & 255;
 		var g = (bigint >> 8) & 255;
 		var b = bigint & 255;
@@ -150,9 +150,12 @@ dm.Utils.Color = {
 		return [r, g, b];
 	},
 
-	interpolateHSV : function(hsv1, hsv2, percentage) {
-		var hue = dm.Math.interpolate();
-		var saturation = Math.abs(val - 50)/50;
+	interpolate : function(color1, color2, percentage) {
+		return [ 
+			dm.Math.interpolate(color1[0], color2[0], percentage),
+			dm.Math.interpolate(color1[1], color2[1], percentage),
+			dm.Math.interpolate(color1[2], color2[2], percentage)
+		]
 	}
 };
 
