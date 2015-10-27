@@ -22,7 +22,7 @@ dm.HTMLElement = function(element, id, className, style) {
 	if(!element)
 		throw new Error("dm.HTMLElement: element attribute can not be null.");
 
-	if(!(element instanceof HTMLElement))
+	if(!(element instanceof HTMLElement) && !(element instanceof SVGElement))
 		throw new Error("dm.HTMLElement: " + element.constructor.name + " not allowed as element attribute.");
 	
 	function addDefaultListener() {
