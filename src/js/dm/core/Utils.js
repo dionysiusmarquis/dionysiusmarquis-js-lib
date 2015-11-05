@@ -2,6 +2,10 @@
  * @requires dm/namespaces.js
  */
 
+/** 
+ * @module dm.Utils
+ * @namespace 
+ */
 dm.Utils = new Object();
 
 dm.Math = {

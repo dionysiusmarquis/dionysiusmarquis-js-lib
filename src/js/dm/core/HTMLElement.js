@@ -378,7 +378,7 @@ dm.HTMLElement = function(element, id, className, style) {
 		var supportsTransition = validateProperty("transition");
 		
 		for(property in values) {
-			value = String(values[property]);
+			value = values[property] ? String(values[property]) : "";
 			// console.log(property, this.getComputetStyleProperty(property), this.style[property], value);
 			// if (this.style[property] && this.style[property] == values[property])
 			if (this.style[property] == value || this.getComputetStyleProperty(property) == value)

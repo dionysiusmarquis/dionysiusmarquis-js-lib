@@ -2,6 +2,13 @@
  * @requires dm/namespaces.js
  */
 
+/**
+ * Main app class for hhey.de
+ * @class
+ * @param {string} type - Type of Event.
+ * @param {any} data - Any kind of data stored in this Event.
+ * @param {bool} bubble - If "true" the Event is bubbeling.
+ */
 dm.Event = function(type, data, bubble) {
 	this.target = null;
 	this.currentTarget = null;

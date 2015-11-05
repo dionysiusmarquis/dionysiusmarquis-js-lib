@@ -1,8 +1,8 @@
 /**
-* @requires dm/namespaces.js
-* @requires dm/webgl/namespaces.js
-* @requires dm/webgl/beziermodifier/shaders.js
-*/
+ * @requires dm/namespaces.js
+ * @requires dm/webgl/namespaces.js
+ * @requires dm/webgl/beziermodifier/shaders.js
+ */
 
 dm.BezierModifier = function(target, mode, width, height, center) {
 
