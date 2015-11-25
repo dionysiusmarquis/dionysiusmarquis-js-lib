@@ -26,17 +26,22 @@ dm.HTMLElement = function(element, id, className, style) {
 		throw new Error("dm.HTMLElement: " + element.constructor.name + " not allowed as element attribute.");
 	
 	function addDefaultListener() {
-		if (typeof document.body.style['transition'] != "undefined")
+		if (typeof document.body.style['transition'] != "undefined") {
 			self.element.addEventListener('transitionend', transitionEndHandler);
+			self.element.addEventListener("animationend", animationEndListener);
 
-		else if (typeof document.body.style['WebkitTransition'] != "undefined")
+		} else if (typeof document.body.style['WebkitTransition'] != "undefined") {
 			self.element.addEventListener('webkitTransitionEnd', transitionEndHandler);
+			self.element.addEventListener("webkitAnimationEnd", animationEndListener);
 
-		else if (typeof document.body.style['MozTransition'] != "undefined")
+		} else if (typeof document.body.style['MozTransition'] != "undefined") {
 			self.element.addEventListener('transitionend', transitionEndEventHandler);
+			self.element.addEventListener('animationend', animationEndListener);
 
-		else if (typeof document.body.style['OTransition'] != "undefined")
+		} else if (typeof document.body.style['OTransition'] != "undefined") {
 			self.element.addEventListener('oTransitionEnd', transitionEndHandler);
+			self.element.addEventListener('oAnimationEnd', animationEndListener);
+		}
 	}
 
 	function transitionEndHandler(event) {
@@ -60,6 +65,13 @@ dm.HTMLElement = function(element, id, className, style) {
 			transition[1].call(transition[2] || self);
 		
 		self.dispatchEvent(new dm.Event("transitionend", event));
+	}
+
+	function animationEndListener(event) {
+		if(event.target != self.element)
+			return;
+		
+		self.dispatchEvent(new dm.Event("animationend", event));
 	}
 
 	function fullscreenChangeHandler(event) {
