@@ -392,6 +392,7 @@ dm.HTMLElement = function(element, id, className, style) {
 		for(property in values) {
 			value = values[property] || values[property] == 0 ? String(values[property]) : "";
 			// console.log(property, this.getComputetStyleProperty(property), this.style[property], value, this.style[property] == value || this.getComputetStyleProperty(property) == value);
+			// console.log(this.style[property], this.getComputetStyleProperty(property),value);
 			// if (this.style[property] && this.style[property] == values[property])
 			if (this.style[property] == value || this.getComputetStyleProperty(property) == value)
 				delete values[property];
