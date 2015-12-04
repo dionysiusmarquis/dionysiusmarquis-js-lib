@@ -262,10 +262,11 @@ dm.Utils.Image = {
 
 			// var matches = new Array();
 			
-			var i, j, parts, part, x, w, h;
+			var i, j, srcsetPart, parts, part, x, w, h;
 			for (i = 0; i < srcsetParts.length; i++) {
 
-				parts = srcsetParts[i].split(" ");
+				srcsetPart = srcsetParts[i].replace(/^[ ]+|[ ]+$/g, "");
+				parts = srcsetPart.split(" ");
 
 				if(parts.length != 2)
 					continue;

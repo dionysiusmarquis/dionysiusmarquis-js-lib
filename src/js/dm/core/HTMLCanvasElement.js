@@ -221,7 +221,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		self.context.restore();
 	}
 
-	function drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize) {
+	function drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize, clipRect, clearBlack) {
 		// console.log(image, image.width, image.height);
 		// console.log(self.canvas, self.canvas.width, self.canvas.height);
 
@@ -233,8 +233,8 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		var paddingBottom		= styleProperties.getPropertyValue("padding-bottom");
 		var paddingLeft			= styleProperties.getPropertyValue("padding-left");
 		var paddingRight		= styleProperties.getPropertyValue("padding-right");
-		var width 				= getWidth(element, styleProperties, true);
-		var height 				= getHeight(element, styleProperties, true);
+		var width 				= clipRect ? clipRect.width : getWidth(element, styleProperties, true);
+		var height 				= clipRect ? clipRect.height : getHeight(element, styleProperties, true);
 
 		paddingTop 			= Number(paddingTop.replace("px", ""));
 		paddingBottom 		= Number(paddingBottom.replace("px", ""));
@@ -260,8 +260,29 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		self.context.save();
 		self.context.globalAlpha = alpha;
 		self.context.setTransform(1, 0, 0, 1, 0, 0);
-		self.context.drawImage(image, offsetX, offsetY, width, height);
+		if(clipRect)
+			self.context.drawImage(image, clipRect.x, clipRect.y, clipRect.width, clipRect.height, offsetX, offsetY, width, height);
+		else
+			self.context.drawImage(image, offsetX, offsetY, width, height);
+		if(clearBlack) {
+			var imageData = self.context.getImageData(offsetX, offsetY, width, height);
+			var i, pixel;
+			for(i = 0; i < imageData.data.length; i+=4)
+				imageData.data[i+3] = imageData.data[i];
+			self.context.putImageData(imageData, offsetX, offsetY);
+		}
 		self.context.restore();
+	}
+
+	function drawMaskedImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize) {
+		var width = getWidth(element, styleProperties, true);
+		var height = Math.floor(getHeight(element, styleProperties, true)/2);
+		var compositeOperation = self.context.globalCompositeOperation;
+
+		drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize, {x: 0, y: height, width: width, height: height}, true);
+		self.context.globalCompositeOperation = "source-in";
+		drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize, {x: 0, y: 0, width: width, height: height});
+		self.context.globalCompositeOperation = compositeOperation;
 	}
 
 	function resizeToElement(element) {
@@ -333,7 +354,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		}
 	};
 
-	this.addImage = function(element, offsetX, offsetY, alpha, autoSize) {
+	this.addImage = function(element, offsetX, offsetY, alpha, autoSize, maskedImage) {
 		offsetX = offsetX || 0;
 		offsetY = offsetY || 0;
 
@@ -346,7 +367,10 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 
 		var image = new Image();
 		image.onload = function() {
-			drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize);
+			if(maskedImage)
+				drawMaskedImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize);
+			else
+				drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize);
 			self.dispatchEvent(new dm.Event("load"));
 			self.dispatchEvent(new dm.Event("update"));
 		};
