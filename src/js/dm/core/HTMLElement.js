@@ -362,12 +362,12 @@ dm.HTMLElement = function(element, id, className, style) {
 	this.cancelFullscreen = function() {
 		this.isFullscreen = false;
 
-		if (this.element.cancelFullscreen)
-			this.element.cancelFullscreen();
-		else if (this.element.mozCancelFullScreen)
-			this.element.mozCancelFullScreen();
-		else if (this.element.webkitCancelFullScreen)
-			this.element.webkitCancelFullScreen();
+		if (document.cancelFullscreen)
+			document.cancelFullscreen();
+		else if (document.mozCancelFullScreen)
+			document.mozCancelFullScreen();
+		else if (document.webkitCancelFullScreen)
+			document.webkitCancelFullScreen();
 	};
 	
 	this.transitionFrom = function(startValues, values, duration, timingFunction, delay, callback) {
