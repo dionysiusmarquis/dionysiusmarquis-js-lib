@@ -159,7 +159,7 @@ dm.Utils.Color = {
 			dm.Math.interpolate(color1[0], color2[0], percentage),
 			dm.Math.interpolate(color1[1], color2[1], percentage),
 			dm.Math.interpolate(color1[2], color2[2], percentage)
-		]
+		];
 	}
 };
 
@@ -248,21 +248,65 @@ dm.Utils.Image = {
 	getSrcset : function(image) {
 		var src = image.src;
 
-
 		if(image.srcset) {
+
 			var windowWidth = window.innerWidth || document.documentElement.clientWidth;
 			var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-
 
 			var pixelRatio = window.devicePixelRatio || 1;
 			var srcsetParts = image.srcset.split(",");
 
-			var minW = windowWidth/pixelRatio;
-			var minH = windowHeight/pixelRatio;
+			var minW = windowWidth;
+			var minH = windowHeight;
+
+			var currentWidth = null;
+			var currentHeight = null;
+
+			var i, parts, part, width, height;
+			if(image.sizes) {
+				var sizesParts = image.sizes.split(",");
+				var sizesPart, match;
+				for (i = 0; i < sizesParts.length; i++) {
+					sizesPart = sizesParts[i].replace(/^[ ]+|[ ]+$/g, "");
+					parts = sizesPart.split(") ");
+
+					if(parts.length == 2) {
+						match = window.matchMedia(parts[0]+")").matches;
+						if(!match)
+							continue;
+
+						parameter = parts[0].split(":")[0].replace(/^[ ]+|[ ]+$|\(/g, "");
+
+						if(parameter == "min-width" || parameter == "max-width") {
+							width = Number(parts[1].replace("px", ""));
+							if(
+									!currentWidth || 
+									(parameter == "min-width" && width > currentWidth) || 
+									(parameter == "max-width" && width < currentWidth)
+								)
+								minW = currentWidth = width;
+						}
+
+						if(parameter == "min-height" || parameter == "max-height") {
+							height = Number(parts[1].replace("px", ""));
+							if(
+									!currentWidth || 
+									(parameter == "min-height" && height < currentWidth) || 
+									(parameter == "max-height" && height > currentWidth)
+								)
+								minH = currentHeight = height;
+						}
+					}
+				}
+			}
+
+			// console.log(minW, minH);
 
 			// var matches = new Array();
-			
-			var i, j, srcsetPart, parts, part, x, w, h;
+			var currentW = null;
+			var currentH = null;
+
+			var srcsetPart, x, w, h;
 			for (i = 0; i < srcsetParts.length; i++) {
 
 				srcsetPart = srcsetParts[i].replace(/^[ ]+|[ ]+$/g, "");
@@ -278,22 +322,26 @@ dm.Utils.Image = {
 				part = parts[1];
 				if(part.slice(-1) == "x") {
 					x = Number(part.slice(0, -1));
-					if( x == pixelRatio)
+					if(x == pixelRatio)
 						src = parts[0];
 				}
 
 				if(part.slice(-1) == "w") {
 					w = Number(part.slice(0, -1));
 					w /= pixelRatio;
-					if( w <= minW)
+					if(!currentW || (w >= minW && w < currentW)) {
 						src = parts[0];
+						currentW = w;
+					}
 				}
 
 				if(part.slice(-1) == "h") {
 					h = Number(part.slice(0, -1));
 					h /= pixelRatio;
-					if( x <= minH)
+					if(!currentH || (h >= minH && h < currentH)) {
 						src = parts[0];
+						currentH = h;
+					}
 				}
 
 				// console.log(src, x, w, h);
@@ -305,6 +353,7 @@ dm.Utils.Image = {
 			// console.log(matches);
 		}
 
+		// console.log(src);
 		return src;	
 	}
 };

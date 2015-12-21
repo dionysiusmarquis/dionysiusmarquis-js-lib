@@ -3,7 +3,7 @@
  * @requires dm/core/HTMLElement.js
  */
 
-dm.HTMLCanvasElement = function(element, canvas, autoSize) {
+dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 	dm.HTMLElement.call(this, element);
 
 	this.canvas = canvas || document.createElement("canvas");
@@ -17,6 +17,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 	isDesktopChrome = false;
 
 	this.autoSize = autoSize !== false;
+	this.useImageSize = useImageSize === undefined ? false : useImageSize;
 
 	this.useDevicePixelRatio = false;
 
@@ -99,11 +100,15 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		// 	width = width === "auto" || width === "" ? element.width : Number(width.replace("px", ""));
 		// else
 		// 	width = width === "auto" || width === "" ? element.offsetWidth : Number(width.replace("px", ""));
-
-		var width = element.offsetWidth;
-
-		if(self.useDevicePixelRatio && window.devicePixelRatio)
-			width *= window.devicePixelRatio;
+		
+		var width;
+		if(isImage && self.useImageSize) {
+			width = element.width;
+		} else {
+			width = element.offsetWidth;
+			if(self.useDevicePixelRatio && window.devicePixelRatio)
+				width *= window.devicePixelRatio;
+		}
 
 		return Math.floor(width);
 	}
@@ -119,10 +124,14 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		// else
 		// 	height = height === "auto" || height === "" ? element.offsetHeight : Number(height.replace("px", ""));
 
-		var height = element.offsetHeight;
-
-		if(self.useDevicePixelRatio && window.devicePixelRatio)
-			height *= window.devicePixelRatio;
+		var height;
+		if(isImage && self.useImageSize) {
+			height = element.height;
+		} else {
+			height = element.offsetHeight;
+			if(self.useDevicePixelRatio && window.devicePixelRatio)
+				height *= window.devicePixelRatio;
+		}
 
 		return Math.floor(height);
 	}
@@ -371,8 +380,8 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 				drawMaskedImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize);
 			else
 				drawImage(image, element, styleProperties, offsetX, offsetY, alpha, autoSize);
-			self.dispatchEvent(new dm.Event("load"));
-			self.dispatchEvent(new dm.Event("update"));
+			self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_LOAD));
+			self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 		};
 		image.src = dm.Utils.Image.getSrcset(element);
 	};
@@ -384,7 +393,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 			resizeToElement(element);
 		
 		canvg(this.canvas, svgFixIE(element.innerHTML), { ignoreMouse: true, offsetX: offsetX, offsetY: offsetY });
-		self.dispatchEvent(new dm.Event("update"));
+		self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 	};
 
 	this.addElement = function(element, offsetX, offsetY, color, alpha, autoSize) {
@@ -525,7 +534,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 			var image = new Image();
 			image.onload = function() {
 				drawBackgroundImage(image, styleProperties, width, height, alpha);
-				self.dispatchEvent(new dm.Event("load"));
+				self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_LOAD));
 				self.addText(text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, offsetX, offsetY);
 			};
 			image.src = imageSource;
@@ -577,7 +586,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
  			this.addTextLine(lines[i], 0, i*lineHeight, letterSpacing, false, false);
 
 		this.context.restore();
-		self.dispatchEvent(new dm.Event("update"));
+		self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 	};
 
 	this.addTextLine = function(text, x, y, letterSpacing, saveRestore, dispatch) {
@@ -631,7 +640,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
         	this.context.restore();
 
         if(dispatch)
-        	self.dispatchEvent(new dm.Event("update"));
+        	self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 	};
 
 	this.setSize = function(width, height) {
@@ -645,8 +654,8 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 		var scale = 1;
 		if(this.useDevicePixelRatio && window.devicePixelRatio)
 			scale = 1/window.devicePixelRatio;
-
-		this.dispatchEvent(new dm.Event("resize", {width: width * scale, height: height * scale}));
+		
+		this.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_RESIZE, {width: width * scale, height: height * scale}));
 	};
 
 	this.clear = function() {
@@ -654,3 +663,6 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize) {
 	};
 };
 dm.HTMLCanvasElement.prototype = Object.create(dm.HTMLElement.prototype);
+dm.HTMLCanvasElement.EVENT_UPDATE = "update";
+dm.HTMLCanvasElement.EVENT_LOAD = "load";
+dm.HTMLCanvasElement.EVENT_RESIZE = "resize";
