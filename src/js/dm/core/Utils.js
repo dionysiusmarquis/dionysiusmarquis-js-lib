@@ -2,9 +2,9 @@
  * @requires dm/namespaces.js
  */
 
-/** 
+/**
  * @module dm.Utils
- * @namespace 
+ * @namespace
  */
 dm.Utils = new Object();
 
@@ -14,11 +14,11 @@ dm.Math = {
 		digits = digits || 0;
 		return Number( ( Math.random() * ( max - min ) ).toFixed( digits ) ) + min;
 	},
-	
+
 	percentage : function(base, value) {
 		return value / (base / 100);
 	},
-	
+
 	interpolate : function(start, end, percentage) {
 		return start + (end - start) * percentage;
 	},
@@ -26,20 +26,20 @@ dm.Math = {
 	interpolate2 : function(start, end, percentage) {
 		return (1 - percentage) * start + percentage * end;
 	},
-	
+
 	distance : function(x1, y1, x2, y2) {
 	  var xs = 0;
 	  var ys = 0;
-	 
+
 	  xs = x2 - x1;
 	  xs = xs * xs;
-	 
+
 	  ys = y2 - y1;
 	  ys = ys * ys;
-	 
+
 	  return Math.sqrt( xs + ys );
 	},
-	
+
 	angle : function(x1, y1, x2, y2) {
 		var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 		return angle < 0 ? angle + 360 : angle;
@@ -86,10 +86,10 @@ dm.Utils.Color = {
 				break;
 			}
 		}
-		
+
 		for (i = 0; i < rgb.length; i++)
 			rgb[i] = Math.round(rgb[i] * 255);
-		
+
 		return rgb;
 	},
 
@@ -133,7 +133,7 @@ dm.Utils.Color = {
 			Math.round(v * 100)
 		];
 	},
-	
+
 	hsv2hex : function(h, s, v) {
 		var rgb = dm.Utils.Color.hsv2rgb(h, s, v);
 		return '#' + rgb.map(function(x) {
@@ -144,7 +144,7 @@ dm.Utils.Color = {
 	rgb2hex : function(r, g, b) {
 		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1,7);
 	},
-	
+
 	hex2rgb : function(hex) {
 		var bigint = parseInt(hex.replace("#", ""), 16);
 		var r = (bigint >> 16) & 255;
@@ -155,7 +155,7 @@ dm.Utils.Color = {
 	},
 
 	interpolate : function(color1, color2, percentage) {
-		return [ 
+		return [
 			dm.Math.interpolate(color1[0], color2[0], percentage),
 			dm.Math.interpolate(color1[1], color2[1], percentage),
 			dm.Math.interpolate(color1[2], color2[2], percentage)
@@ -166,19 +166,19 @@ dm.Utils.Color = {
 dm.Utils.Date = {
 	convert : function(timestamp, pattern) {
 		var date = new Date(timestamp.replace(/-/g, "/"));
-		
+
 		var day = date.getDate();
 		if(day<10) day = "0"+day;
-		
+
 		var month = date.getMonth()+1;
 		if(month<10) month = "0"+month;
-		
+
 		var hours = date.getHours();
 		if(hours<10) hours = "0"+hours;
-		
+
 		var minutes = date.getMinutes();
 		if(minutes<10) minutes = "0"+minutes;
-		
+
 		if(!pattern)
 			return day+"."+month+"."+date.getFullYear()+"; "+hours+":"+minutes;
 		else {
@@ -192,24 +192,24 @@ dm.Utils.Date = {
 };
 
 dm.Utils.Draw = {
-		
+
 	getGap : function(x, y, x2, y2, minDistance, maxDistance) {
 		minDistance = minDistance || 3;
 		maxDistance = maxDistance || 250;
 
 		var coordsArray = new Array();
 		coordsArray.push({x: x, y: y});
-		
+
 		var xLength = x2 - x;
 		var yLength = y2 - y;
 		var distance  = Math.sqrt( Math.pow( xLength, 2 ) + Math.pow( yLength, 2 ) );
-		
+
 		if( distance > minDistance && distance < maxDistance ) {
 			var i;
 			for(i = 1; i < ( distance / minDistance ) + 1; i++ )
 				coordsArray.push({x: x + ( xLength / ( distance / minDistance ) ) * i, y: y+ ( yLength / ( distance / minDistance ) ) * i } );
 		}
-		
+
 		return coordsArray;
 	}
 };
@@ -223,12 +223,12 @@ dm.Utils.Object = {
 		}
 		return copy;
 	},
-	
+
 	merge : function(target, object, createObject) {
 		if(createObject) target = dm.Utils.Object.clone(target);
 		for (var attr in object)
 			target[attr] = object[attr];
-		
+
 		return target;
 	},
 
@@ -245,116 +245,32 @@ dm.Utils.Object = {
 
 
 dm.Utils.Image = {
-	getSrcset : function(image) {
-		var src = image.src;
+	getSrc : function(image, detailed) {
 
-		if(image.srcset) {
+		if(image.src && !image.currentSrc)
+			console.error("dm.Utils.Image: No valid src found for image", image.src, image);
 
-			var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-			var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-
-			var pixelRatio = window.devicePixelRatio || 1;
-			var srcsetParts = image.srcset.split(",");
-
-			var minW = windowWidth;
-			var minH = windowHeight;
-
-			var currentWidth = null;
-			var currentHeight = null;
-
-			var i, parts, part, width, height;
-			if(image.sizes) {
-				var sizesParts = image.sizes.split(",");
-				var sizesPart, match;
-				for (i = 0; i < sizesParts.length; i++) {
-					sizesPart = sizesParts[i].replace(/^[ ]+|[ ]+$/g, "");
-					parts = sizesPart.split(") ");
-
-					if(parts.length == 2) {
-						match = window.matchMedia(parts[0]+")").matches;
-						if(!match)
-							continue;
-
-						parameter = parts[0].split(":")[0].replace(/^[ ]+|[ ]+$|\(/g, "");
-
-						if(parameter == "min-width" || parameter == "max-width") {
-							width = Number(parts[1].replace("px", ""));
-							if(
-									!currentWidth || 
-									(parameter == "min-width" && width > currentWidth) || 
-									(parameter == "max-width" && width < currentWidth)
-								)
-								minW = currentWidth = width;
-						}
-
-						if(parameter == "min-height" || parameter == "max-height") {
-							height = Number(parts[1].replace("px", ""));
-							if(
-									!currentWidth || 
-									(parameter == "min-height" && height < currentWidth) || 
-									(parameter == "max-height" && height > currentWidth)
-								)
-								minH = currentHeight = height;
-						}
+		if(!detailed) {
+			return image.srcset ? image.currentSrc : image.src;
+		} else {
+			var sources = image.srcset.split(",");
+			if(image.currentSrc) {
+				var index, source, sourceParts, sourceParam, sourceValue, sourceW, sourceH;
+				for(index in sources) {
+					source = sources[index];
+					if(source.indexOf(image.currentSrc + " ") != -1) {
+						sourceParts = source.split(" ");
+						sourceParam = sourceParts[sourceParts.length - 1].slice(-1);
+						sourceValue = sourceParts[sourceParts.length - 1].slice(0, -1);
+						if(sourceParam == "w")
+							sourceW = Number(sourceValue);
+						if(sourceParam == "h")
+							sourceH = Number(sourceValue);
 					}
 				}
 			}
-
-			// console.log(minW, minH);
-
-			// var matches = new Array();
-			var currentW = null;
-			var currentH = null;
-
-			var srcsetPart, x, w, h;
-			for (i = 0; i < srcsetParts.length; i++) {
-
-				srcsetPart = srcsetParts[i].replace(/^[ ]+|[ ]+$/g, "");
-				parts = srcsetPart.split(" ");
-
-				if(parts.length != 2)
-					continue;
-
-				x = pixelRatio;
-				w = 0;
-				h = 0;
-
-				part = parts[1];
-				if(part.slice(-1) == "x") {
-					x = Number(part.slice(0, -1));
-					if(x == pixelRatio)
-						src = parts[0];
-				}
-
-				if(part.slice(-1) == "w") {
-					w = Number(part.slice(0, -1));
-					w /= pixelRatio;
-					if(!currentW || (w >= minW && w < currentW)) {
-						src = parts[0];
-						currentW = w;
-					}
-				}
-
-				if(part.slice(-1) == "h") {
-					h = Number(part.slice(0, -1));
-					h /= pixelRatio;
-					if(!currentH || (h >= minH && h < currentH)) {
-						src = parts[0];
-						currentH = h;
-					}
-				}
-
-				// console.log(src, x, w, h);
-
-				// if(x == pixelRatio && w <= windowWidth && h <= windowHeight) 
-				// 	matches.push([src, x, w, h]);
-			}
-
-			// console.log(matches);
+			return {src: image.srcset ? image.currentSrc : image.src, w: sourceW, h: sourceH};
 		}
-
-		// console.log(src);
-		return src;	
 	}
 };
 
@@ -366,7 +282,7 @@ dm.Utils.Form = {
 		for(i=0; i < dataElements.length; i++)
 			dataElements[i].disabled = disabled;
 	},
-	
+
 	resetForm : function(form) {
 		var formElements = form.querySelectorAll("input:not([type=\"submit\"]), textarea, select, option");
 		var i, formElement;
@@ -382,7 +298,7 @@ dm.Utils.Form = {
 			}
 		}
 	},
-	
+
 	getFormValue : function(formElement) {
 		switch(formElement.type) {
 			case "checkbox":
@@ -398,7 +314,7 @@ dm.Utils.Form = {
 				return formElement.value;
 		}
 	},
-	
+
 	getFormDataQuery : function(form) {
 		var dataValues = new Array();
 		var dataElements = form.querySelectorAll("input:not([type=\"submit\"]), textarea, select, option");
@@ -412,7 +328,7 @@ dm.Utils.Form = {
 
 		return dataValues.join("&");
 	},
-	
+
 	toQueryString : function(obj) {
 		var parts = [];
 		for (var i in obj) {
@@ -422,16 +338,16 @@ dm.Utils.Form = {
 		}
 		return parts.join("&");
 	},
-	
+
 	getMultiPartFormData : function(form, boundary, filesData) {
 		var body = "";
 		var newLine = "\r\n";
-		
+
 		var dataElements = form.querySelectorAll("input:not([type=\"submit\"]), textarea, select, option");
 		var i, dataElement, value;
 		for(i=0; i < dataElements.length; i++) {
 			dataElement = dataElements[i];
-			
+
 			if(dataElement.value === "");
 				continue;
 			body += "--"+boundary+newLine;
@@ -440,18 +356,18 @@ dm.Utils.Form = {
 				value = dm.Utils.Form.getFormValue(dataElement);
 				if(value !== false) {
 					body += newLine;
-					body += value+newLine;			
+					body += value+newLine;
 				}
 			} else if(filesData[dataElement.name]){
 				body += "Content-Type: application/octet-stream"+newLine+newLine;
 				body += filesData[dataElement.name]+newLine;
 			}
 		}
-		body += "--"+boundary+"--";	
-		
+		body += "--"+boundary+"--";
+
 		return body;
 	},
-	
+
 	getFormData : function(form) {
 		var dataValues = new Object();
 		var dataElements = form.querySelectorAll("input:not([type=\"submit\"]), textarea, select, option");

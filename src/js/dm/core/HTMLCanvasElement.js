@@ -71,6 +71,20 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 		return xml;
 	}
 
+	function getCurrentSrc(imageElement, image, tries) {
+		if(tries === undefined) tries = 0;
+		if(imageElement.srcset && !imageElement.currentSrc && tries <= 90) {
+			requestAnimationFrame(function() {
+				getCurrentSrc(imageElement, image, ++tries);
+			});
+			if(tries == 90)
+				console.warn("dm.HTMLCanvasElement: Couldn't get currentSrc for image", imageElement.src);
+			return;
+		}
+
+		image.src = dm.Utils.Image.getSrc(imageElement);
+	}
+
 	function getLineHeight(element) {
 
 		var clone = element.cloneNode();
@@ -93,14 +107,14 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 	function getWidth(element, styleProperties, isImage) {
 		// if(!styleProperties)
 		// 	styleProperties = window.getComputedStyle(element, null);
-		
+
 		// var width = styleProperties.getPropertyValue("width");
 
 		// if(isImage)
 		// 	width = width === "auto" || width === "" ? element.width : Number(width.replace("px", ""));
 		// else
 		// 	width = width === "auto" || width === "" ? element.offsetWidth : Number(width.replace("px", ""));
-		
+
 		var width;
 		if(isImage && self.useImageSize) {
 			width = element.width;
@@ -259,7 +273,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 
 		drawBackground(styleProperties, width, height, alpha);
 		drawBorder(styleProperties, width, height, null, alpha);
-		
+
 		width -= paddingLeft + paddingRight + borderLeftWidth + borderRightWidth;
 		height -= paddingLeft + paddingRight + borderTopWidth + borderBottomWidth;
 
@@ -348,7 +362,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 			}
 		} else
 			children = {length: 0};
-			
+
 		if(!children.length) {
 			switch(element.nodeName) {
 				case "SVG":
@@ -383,15 +397,15 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 			self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_LOAD));
 			self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 		};
-		image.src = dm.Utils.Image.getSrcset(element);
+		getCurrentSrc(element, image);
 	};
 
-	this.addSvgElement = function(element, offsetX, offsetY, autoSize) { 
+	this.addSvgElement = function(element, offsetX, offsetY, autoSize) {
 		autoSize = autoSize === undefined ? this.autoSize : autoSize;
 
 		if(autoSize)
 			resizeToElement(element);
-		
+
 		canvg(this.canvas, svgFixIE(element.innerHTML), { ignoreMouse: true, offsetX: offsetX, offsetY: offsetY });
 		self.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_UPDATE));
 	};
@@ -441,7 +455,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 		borderTopWidth 		= Number(borderTopWidth.replace("px", ""));
 		borderLeftWidth 	= Number(borderLeftWidth.replace("px", ""));
 		borderRightWidth 	= Number(borderRightWidth.replace("px", ""));
-		
+
 		if(autoSize)
 			this.setSize(width, height);
 
@@ -464,7 +478,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 			// letterSpacing = 0;
 
 			var clone = element.cloneNode();
-			clone.style.whiteSpace = "nowrap";	
+			clone.style.whiteSpace = "nowrap";
 			element.parentElement.appendChild(clone);
 
 			var startWidth = element.scrollWidth;
@@ -599,13 +613,13 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 
 		if (!text || typeof text !== "string" || text.length === 0)
             return;
-        
+
         if (!letterSpacing)
         	letterSpacing = 0;
 
         saveRestore = saveRestore !== false;
         dispatch = dispatch !== false;
-        
+
         var characters = text.split("");
         var index = 0;
         var current;
@@ -614,7 +628,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 
         if(saveRestore)
         	this.context.save();
-        
+
         if (this.context.textAlign === "right") {
             characters = characters.reverse();
             align = -1;
@@ -627,7 +641,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
             }
             currentPosition = x - (totalWidth / 2);
         }
-        
+
 
         while (index < text.length) {
             current = characters[index++];
@@ -644,7 +658,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 	};
 
 	this.setSize = function(width, height) {
-		if(width == this.canvas.width && height == this.canvas.height)	
+		if(width == this.canvas.width && height == this.canvas.height)
 			return;
 
 		this.canvas.width = width;
@@ -654,7 +668,7 @@ dm.HTMLCanvasElement = function(element, canvas, autoSize, useImageSize) {
 		var scale = 1;
 		if(this.useDevicePixelRatio && window.devicePixelRatio)
 			scale = 1/window.devicePixelRatio;
-		
+
 		this.dispatchEvent(new dm.Event(dm.HTMLCanvasElement.EVENT_RESIZE, {width: width * scale, height: height * scale}));
 	};
 
