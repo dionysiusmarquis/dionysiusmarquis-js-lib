@@ -256,9 +256,11 @@ dm.Utils.Image = {
 			var sources = image.srcset.split(",");
 			if(image.currentSrc) {
 				var index, source, sourceParts, sourceParam, sourceValue, sourceW, sourceH;
+				var src = image.currentSrc.replace(window.location, "");
 				for(index in sources) {
 					source = sources[index];
-					if(source.indexOf(image.currentSrc + " ") != -1) {
+					// console.log(index, source.indexOf(src + " "), source, image.currentSrc);
+					if(source.indexOf(src + " ") != -1) {
 						sourceParts = source.split(" ");
 						sourceParam = sourceParts[sourceParts.length - 1].slice(-1);
 						sourceValue = sourceParts[sourceParts.length - 1].slice(0, -1);
