@@ -190,10 +190,12 @@ dm.ImageLoaderImage = function(image, callback) {
 
 	this.image = image;
 	this.callback = callback;
-	this.currentSrc = image.src;
+	this.currentSrc = null;
 
 	var loadingImage = null;
 	var isLoading = image.srcset !== "";
+
+	// var timeout = setTimeout(function() {console.warn("dm.ImageLoaderImage: currentSrc did not change for ", image.src, image.currentSrc)}, 5000);
 
 	function loadingImageHandler(event) {
 		switch(event.type) {
@@ -215,14 +217,16 @@ dm.ImageLoaderImage = function(image, callback) {
 	}
 
 	this.load = function() {
-		if(image.src != self.currentSrc) {
+		if(!image.srcset || (image.srcset && image.currentSrc)) {
+			// clearTimeout(timeout);
+
 			if(loadingImage)
 				self.stop();
 
 			loadingImage = new Image();
 			loadingImage.addEventListener("load", loadingImageHandler);
 			loadingImage.addEventListener("error", loadingImageHandler);
-			loadingImage.src = self.currentSrc;
+			loadingImage.src = image.srcset ? self.currentSrc : image.src;
 			isLoading = true;
 		}
 	};
@@ -245,6 +249,8 @@ dm.ImageLoaderImage = function(image, callback) {
 		this.stop();
 		isLoading = image.srcset !== "";
 	};
+
+	this.load();
 };
 dm.ImageLoaderImage.prototype = Object.create(dm.EventTarget.prototype);
 dm.ImageLoaderImage.EVENT_LOAD = "load";
