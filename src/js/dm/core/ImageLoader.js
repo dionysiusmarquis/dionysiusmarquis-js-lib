@@ -40,11 +40,9 @@ dm.ImageLoader = function(autoStart, invalidateAll) {
 				image.currentSrc = imageElement.currentSrc;
 
 				if(!self.numLoading()) {
-					if(invalidateAll) {
-						var invalidateSrc;
-						for(invalidateSrc in images)
-							images[invalidateSrc].invalidate();
-					}
+					if(invalidateAll)
+						self.invalidate();
+
 					self.dispatchEvent(new dm.Event(dm.ImageLoader.EVENT_INVALIDATE, image));
 				}
 
@@ -172,6 +170,12 @@ dm.ImageLoader = function(autoStart, invalidateAll) {
 
 		images = null;
 	};
+
+	this.invalidate = function() {
+		var src;
+		for(src in images)
+			images[src].invalidate();
+	}
 };
 dm.ImageLoader.prototype = Object.create(dm.EventTarget.prototype);
 dm.ImageLoader.EVENT_IMAGE_LOAD = "imageload";
