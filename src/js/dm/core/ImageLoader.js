@@ -197,7 +197,7 @@ dm.ImageLoaderImage = function(image, callback) {
 	this.currentSrc = null;
 
 	var loadingImage = null;
-	var isLoading = image.srcset !== "";
+	var loading = image.srcset !== "";
 
 	// var timeout = setTimeout(function() {console.warn("dm.ImageLoaderImage: currentSrc did not change for ", image.src, image.currentSrc)}, 5000);
 
@@ -231,7 +231,7 @@ dm.ImageLoaderImage = function(image, callback) {
 			loadingImage.addEventListener("load", loadingImageHandler);
 			loadingImage.addEventListener("error", loadingImageHandler);
 			loadingImage.src = image.srcset ? self.currentSrc : image.src;
-			isLoading = true;
+			loading = true;
 		}
 	};
 
@@ -242,16 +242,16 @@ dm.ImageLoaderImage = function(image, callback) {
 			loadingImage.src = "";
 			loadingImage = null;
 		}
-		isLoading = false;
+		loading = false;
 	};
 
 	this.isLoading = function() {
-		return isLoading;
+		return loading;
 	};
 
 	this.invalidate = function() {
 		this.stop();
-		isLoading = image.srcset !== "";
+		loading = image.srcset !== "";
 	};
 
 	this.load();
