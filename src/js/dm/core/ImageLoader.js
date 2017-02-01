@@ -35,37 +35,19 @@ dm.ImageLoader = function(autoStart, invalidateAll) {
 		for(src in images) {
 			image = images[src];
 			imageElement = image.image;
-			if(imageElement.currentSrc && imageElement.currentSrc != image.currentSrc) {
+			if(imageElement.currentSrc && imageElement.currentSrc !== image.currentSrc) {
 				// console.log("New currentSrc:", dm.Utils.Image.getSrc(imageElement, true));
 				image.currentSrc = imageElement.currentSrc;
 
-				if(!self.numLoading()) {
-					if(invalidateAll)
-						self.invalidate();
+				if(!self.numLoading() && invalidateAll)
+					self.invalidate();
 
-					self.dispatchEvent(new dm.Event(dm.ImageLoader.EVENT_INVALIDATE, image));
-				}
+				self.dispatchEvent(new dm.Event(dm.ImageLoader.EVENT_INVALIDATE, image));
 
 				image.load();
 			}
 		}
 	}
-
-	/*this.loadImage = function(src) {
-		var image = images[src];
-		if(image) {
-			image.load();
-		} else
-			console.warn("dm.ImageLoader: loadingImage() No image found for", src);
-	};
-
-	this.stopImage = function(src) {
-		var image = images[src];
-		if(image) {
-			image.stop();
-		} else
-			console.warn("dm.ImageLoader: stopImage() No image found for", src);
-	};*/
 
 	this.add = function(image, callback) {
 		if(!image.src) {
@@ -117,7 +99,7 @@ dm.ImageLoader = function(autoStart, invalidateAll) {
 	};
 
 	this.load = function() {
-		if(autoStart == false)
+		if(!autoStart)
 			detectSrcChange();
 	};
 
