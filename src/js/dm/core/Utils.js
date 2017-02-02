@@ -216,7 +216,7 @@ dm.Utils.Draw = {
 
 dm.Utils.Object = {
 	clone : function(object) {
-		if(object === null || typeof object != "object") return object;
+		if(object === null || typeof object !== "object") return object;
 		var copy = new object.constructor();
 		for (var attr in object) {
 			if (object.hasOwnProperty(attr)) copy[attr] = object[attr];
@@ -237,7 +237,7 @@ dm.Utils.Object = {
 		var s = "";
 		for(var i=0;i<k.length;i++) {
 			s += k[i] + "=" + encodeURIComponent(object[k[i]]);
-			if (i != k.length -1) s += "&";
+			if (i !== k.length -1) s += "&";
 		}
 		return s;
 	 }
@@ -256,17 +256,17 @@ dm.Utils.Image = {
 			var sources = image.srcset.split(",");
 			if(image.currentSrc) {
 				var index, source, sourceParts, sourceParam, sourceValue, sourceW, sourceH;
-				var src = image.currentSrc.replace(window.location, "");
+				var src = image.currentSrc.split("/").pop();
 				for(index in sources) {
 					source = sources[index];
-					// console.log(index, source.indexOf(src + " "), source, image.currentSrc);
-					if(source.indexOf(src + " ") != -1) {
+					// console.log(index, source.indexOf(src + " "), src, source, image.currentSrc);
+					if(source.indexOf(src + " ") !== -1) {
 						sourceParts = source.split(" ");
 						sourceParam = sourceParts[sourceParts.length - 1].slice(-1);
 						sourceValue = sourceParts[sourceParts.length - 1].slice(0, -1);
-						if(sourceParam == "w")
+						if(sourceParam === "w")
 							sourceW = Number(sourceValue);
-						if(sourceParam == "h")
+						if(sourceParam === "h")
 							sourceH = Number(sourceValue);
 					}
 				}
@@ -304,7 +304,7 @@ dm.Utils.Form = {
 	getFormValue : function(formElement) {
 		switch(formElement.type) {
 			case "checkbox":
-				if(formElement.name.indexOf("[]" != -1)) {
+				if(formElement.name.indexOf("[]" !== -1)) {
 					if(formElement.checked)
 						return formElement.value;
 					else
@@ -350,11 +350,12 @@ dm.Utils.Form = {
 		for(i=0; i < dataElements.length; i++) {
 			dataElement = dataElements[i];
 
-			if(dataElement.value === "");
+			if(dataElement.value === "")
 				continue;
-			body += "--"+boundary+newLine;
+
+			body += "--" + boundary + newLine;
 			body += "Content-Disposition: form-data; name=\""+dataElement.name+"\""+newLine;
-			if(dataElement.type && dataElement.type != "file") {
+			if(dataElement.type && dataElement.type !== "file") {
 				value = dm.Utils.Form.getFormValue(dataElement);
 				if(value !== false) {
 					body += newLine;
@@ -400,7 +401,7 @@ dm.Utils.CSS = {
 			for (j = 0; j < rules.length; j += 1)
 				if (rules[j].constructor === CSSFontFaceRule) {
 					fontFamily = rules[j].style.getPropertyValue("font-family").replace(/'|"/g, "");
-					if(fontFaces.indexOf(fontFamily) == -1)
+					if(fontFaces.indexOf(fontFamily) === -1)
 						fontFaces.push(fontFamily);
 				}
 		}
