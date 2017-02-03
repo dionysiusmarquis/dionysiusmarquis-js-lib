@@ -145,6 +145,20 @@ dm.ImageLoader = function(autoStart, invalidateAll) {
 		return numLoaded;
 	};
 
+	this.percentageLoaded = function () {
+		var numImages = 0;
+		var numLoaded = 0;
+
+		var src;
+		for(src in images) {
+			if(!images[src].isLoading())
+				numLoaded++;
+			numImages++;
+		}
+
+		return numLoaded / numImages;
+	};
+
 	this.destroy = function() {
 		var src;
 		for(src in images)
