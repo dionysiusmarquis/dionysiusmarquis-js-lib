@@ -1,17 +1,24 @@
 {
-    "name" : "dionysiusmarquis-js-lib",
-    "version" : "0.1.0",
-    "author" : "Dionysius Marquis",
-    "private" : true,
+  "name": "dionysiusmarquis-js-lib",
+  "version": "0.1.0",
+  "author": "Dionysius Marquis",
+  "private": true,
 
-    "devDependencies" : {
-        "gulp": "*",
-        "gulp-resolve-dependencies": "*",
-        "gulp-concat": "*",
-        "gulp-replace": "*",
-        "gulp-rename": "*",
-        "gulp-uglify": "*",
-        "browserify": "*",
-        "q": "*"
-    }
+  "main": "src/js/index.js",
+  "module": "src/js/index.js",
+  "dependencies": {
+    "canvg-fixed": "^1.0.0",
+    "glslify": "^6.0.2",
+    "three": "^0.84.0"
+  },
+  "devDependencies": {
+    "gulp": "*",
+    "gulp-resolve-dependencies": "*",
+    "gulp-concat": "*",
+    "gulp-replace": "*",
+    "gulp-rename": "*",
+    "gulp-uglify": "*",
+    "browserify": "*",
+    "q": "*"
+  }
 }
