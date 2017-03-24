@@ -8,9 +8,10 @@ import {
   JacobiShader,
   SplatShader,
   SubtractGradientShader,
-  VignetteShader,
   VisualizeShader
 } from './shaders'
+
+import {VignetteShader} from './../../shaderlib/shaders'
 
 function Advect (settings, textures) {
   ShaderMaterial.call(this, AdvectShader)
