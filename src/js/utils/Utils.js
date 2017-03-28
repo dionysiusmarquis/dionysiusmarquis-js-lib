@@ -147,9 +147,9 @@ const ColorUtil = {
 
   interpolate: function (color1, color2, percentage) {
     return [
-      Math.interpolate(color1[0], color2[0], percentage),
-      Math.interpolate(color1[1], color2[1], percentage),
-      Math.interpolate(color1[2], color2[2], percentage)
+      MathUtil.interpolate(color1[0], color2[0], percentage),
+      MathUtil.interpolate(color1[1], color2[1], percentage),
+      MathUtil.interpolate(color1[2], color2[2], percentage)
     ]
   }
 }

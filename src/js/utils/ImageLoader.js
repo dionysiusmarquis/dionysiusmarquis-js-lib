@@ -13,14 +13,14 @@ function ImageLoader (autoStart, invalidateAll) {
   function imageHandler (event) {
     switch (event.type) {
       case ImageLoaderImage.EVENT_ERROR:
-        self.dispatchEvent(new Event(ImageLoader.EVENT_ERROR, event.target))
+        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_ERROR, event.target))
         break
 
       case ImageLoaderImage.EVENT_LOAD:
-        self.dispatchEvent(new Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
+        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
 
         if (!self.isLoading()) {
-          self.dispatchEvent(new Event(ImageLoader.EVENT_LOAD))
+          self.dispatchEvent(new dm.Event(ImageLoader.EVENT_LOAD))
         }
         break
     }
@@ -43,7 +43,7 @@ function ImageLoader (autoStart, invalidateAll) {
           self.invalidate()
         }
 
-        self.dispatchEvent(new Event(ImageLoader.EVENT_INVALIDATE, image))
+        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
 
         image.load()
       }
@@ -219,12 +219,12 @@ function ImageLoaderImage (image, callback) {
           self.callback(self)
         }
 
-        self.dispatchEvent(new Event(ImageLoaderImage.EVENT_LOAD))
+        self.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_LOAD))
         break
 
       case 'error':
         self.stop()
-        self.dispatchEvent(new Event(ImageLoaderImage.EVENT_ERROR))
+        self.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_ERROR))
         console.error('ImageLoaderImage: Error loading image', image.src, 'using', event.target.src)
         break
     }

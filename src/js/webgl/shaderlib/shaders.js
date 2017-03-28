@@ -1,5 +1,19 @@
 import {UniformsUtils, Vector2, Vector4} from 'three'
-import glslify from 'glslify'
+
+import AlphaBlendVertexShader from './shaders/AlphaBlend.vert'
+import AlphaBlendFragmentShader from './shaders/AlphaBlend.frag'
+import ColorVertexShader from './shaders/Color.vert'
+import ColorFragmentShader from './shaders/Color.frag'
+import NormalBlendVertexShader from './shaders/NormalBlend.vert'
+import NormalBlendFragmentShader from './shaders/NormalBlend.frag'
+import OverrideColorVertexShader from './shaders/OverrideColor.vert'
+import OverrideColorFragmentShader from './shaders/OverrideColor.frag'
+import PremultiplyAlphaVertexShader from './shaders/PremultiplyAlpha.vert'
+import PremultiplyAlphaFragmentShader from './shaders/PremultiplyAlpha.frag'
+import UnpremultiplyAlphaVertexShader from './shaders/UnpremultiplyAlpha.vert'
+import UnpremultiplyAlphaFragmentShader from './shaders/UnpremultiplyAlpha.frag'
+import VignetteVertexShader from './shaders/Vignette.vert'
+import VignetteFragmentShader from './shaders/Vignette.frag'
 
 const AlphaBlendShader = {
   uniforms: UniformsUtils.merge([
@@ -8,8 +22,8 @@ const AlphaBlendShader = {
       'Sampler2': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/AlphaBlend.vert'),
-  fragmentShader: glslify('./shaders/AlphaBlend.frag')
+  vertexShader: AlphaBlendVertexShader,
+  fragmentShader: AlphaBlendFragmentShader
 }
 
 const ColorShader = {
@@ -18,8 +32,8 @@ const ColorShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/Color.vert'),
-  fragmentShader: glslify('./shaders/Color.frag')
+  vertexShader: ColorVertexShader,
+  fragmentShader: ColorFragmentShader
 }
 
 const NormalBlendShader = {
@@ -29,8 +43,8 @@ const NormalBlendShader = {
       'Sampler2': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/NormalBlend.vert'),
-  fragmentShader: glslify('./shaders/NormalBlend.frag')
+  vertexShader: NormalBlendVertexShader,
+  fragmentShader: NormalBlendFragmentShader
 }
 
 const OverrideColorShader = {
@@ -41,8 +55,8 @@ const OverrideColorShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/OverrideColor.vert'),
-  fragmentShader: glslify('./shaders/OverrideColor.frag')
+  vertexShader: OverrideColorVertexShader,
+  fragmentShader: OverrideColorFragmentShader
 }
 
 const PremultiplyAlphaShader = {
@@ -51,8 +65,8 @@ const PremultiplyAlphaShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/PremultiplyAlpha.vert'),
-  fragmentShader: glslify('./shaders/PremultiplyAlpha.frag')
+  vertexShader: PremultiplyAlphaVertexShader,
+  fragmentShader: PremultiplyAlphaFragmentShader
 }
 
 const UnpremultiplyAlphaShader = {
@@ -61,8 +75,8 @@ const UnpremultiplyAlphaShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/UnpremultiplyAlpha.vert'),
-  fragmentShader: glslify('./shaders/UnpremultiplyAlpha.frag')
+  vertexShader: UnpremultiplyAlphaVertexShader,
+  fragmentShader: UnpremultiplyAlphaFragmentShader
 }
 
 const VignetteShader = {
@@ -76,8 +90,8 @@ const VignetteShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/Vignette.vert'),
-  fragmentShader: glslify('./shaders/Vignette.frag')
+  vertexShader: VignetteVertexShader,
+  fragmentShader: VignetteFragmentShader
 }
 
 export {

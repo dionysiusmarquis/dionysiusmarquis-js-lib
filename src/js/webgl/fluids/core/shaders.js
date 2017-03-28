@@ -1,5 +1,21 @@
 import {UniformsUtils, Vector2, Vector3, Vector4} from 'three'
-import glslify from 'glslify'
+
+import AdvectVertexShader from './../shaders/Advect.vert'
+import AdvectFragmentShader from './../shaders/Advect.frag'
+import BoundaryVertexShader from './../shaders/Boundary.vert'
+import BoundaryFragmentShader from './../shaders/Boundary.frag'
+import BuoyancyVertexShader from './../shaders/Buoyancy.vert'
+import BuoyancyFragmentShader from './../shaders/Buoyancy.frag'
+import ComputeDivergenceVertexShader from './../shaders/ComputeDivergence.vert'
+import ComputeDivergenceFragmentShader from './../shaders/ComputeDivergence.frag'
+import JacobiVertexShader from './../shaders/Jacobi.vert'
+import JacobiFragmentShader from './../shaders/Jacobi.frag'
+import SplatVertexShader from './../shaders/Splat.vert'
+import SplatFragmentShader from './../shaders/Splat.frag'
+import SubtractGradientVertexShader from './../shaders/SubtractGradient.vert'
+import SubtractGradientFragmentShader from './../shaders/SubtractGradient.frag'
+import VisualizeVertexShader from './../shaders/Visualize.vert'
+import VisualizeFragmentShader from './../shaders/Visualize.frag'
 
 const AdvectShader = {
   uniforms: UniformsUtils.merge([
@@ -13,8 +29,8 @@ const AdvectShader = {
       'ObstacleThreshold': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./../shaders/Advect.vert'),
-  fragmentShader: glslify('./../shaders/Advect.frag')
+  vertexShader: AdvectVertexShader,
+  fragmentShader: AdvectFragmentShader
 }
 
 const BoundaryShader = {
@@ -25,8 +41,8 @@ const BoundaryShader = {
       'InverseSize': {type: 'v2', value: new Vector2(0, 0)}
     }
   ]),
-  vertexShader: glslify('./../shaders/Boundary.vert'),
-  fragmentShader: glslify('./../shaders/Boundary.frag')
+  vertexShader: BoundaryVertexShader,
+  fragmentShader: BoundaryFragmentShader
 }
 
 const BuoyancyShader = {
@@ -41,8 +57,8 @@ const BuoyancyShader = {
       'Kappa': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./../shaders/Buoyancy.vert'),
-  fragmentShader: glslify('./../shaders/Buoyancy.frag')
+  vertexShader: BuoyancyVertexShader,
+  fragmentShader: BuoyancyFragmentShader
 }
 
 const ComputeDivergenceShader = {
@@ -55,8 +71,8 @@ const ComputeDivergenceShader = {
       'ObstacleThreshold': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./../shaders/ComputeDivergence.vert'),
-  fragmentShader: glslify('./../shaders/ComputeDivergence.frag')
+  vertexShader: ComputeDivergenceVertexShader,
+  fragmentShader: ComputeDivergenceFragmentShader
 }
 
 const JacobiShader = {
@@ -71,8 +87,8 @@ const JacobiShader = {
       'ObstacleThreshold': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./../shaders/Jacobi.vert'),
-  fragmentShader: glslify('./../shaders/Jacobi.frag')
+  vertexShader: JacobiVertexShader,
+  fragmentShader: JacobiFragmentShader
 }
 const SplatShader = {
   uniforms: UniformsUtils.merge([
@@ -83,8 +99,8 @@ const SplatShader = {
       'FillColor': {type: 'v4', value: new Vector4(0, 0, 0, 0)}
     }
   ]),
-  vertexShader: glslify('./../shaders/Splat.vert'),
-  fragmentShader: glslify('./../shaders/Splat.frag')
+  vertexShader: SplatVertexShader,
+  fragmentShader: SplatFragmentShader
 }
 
 const SubtractGradientShader = {
@@ -98,8 +114,8 @@ const SubtractGradientShader = {
       'ObstacleThreshold': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./../shaders/SubtractGradient.vert'),
-  fragmentShader: glslify('./../shaders/SubtractGradient.frag')
+  vertexShader: SubtractGradientVertexShader,
+  fragmentShader: SubtractGradientFragmentShader
 }
 const VisualizeShader = {
   uniforms: UniformsUtils.merge([
@@ -108,8 +124,8 @@ const VisualizeShader = {
       'FillColor': {type: 'v3', value: new Vector3(0, 0, 0)}
     }
   ]),
-  vertexShader: glslify('./../shaders/Visualize.vert'),
-  fragmentShader: glslify('./../shaders/Visualize.frag')
+  vertexShader: VisualizeVertexShader,
+  fragmentShader: VisualizeFragmentShader
 }
 
 export {

@@ -1,6 +1,6 @@
-import {EventTarget} from './EventTarget'
+import {EventTarget, Event} from './EventTarget'
 
-import {ObjectUtil} from 'dionysiusmarquis-js-lib/utils'
+import {ObjectUtil} from './../utils/Utils'
 
 function HTMLElement (element, id, className, style) {
   EventTarget.call(this)
@@ -22,7 +22,7 @@ function HTMLElement (element, id, className, style) {
     throw new Error('HTMLElement: element attribute can not be null.')
   }
 
-  if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
+  if (!(element instanceof window.HTMLElement) && !(element instanceof window.SVGElement)) {
     throw new Error('HTMLElement: ' + element.constructor.name + ' not allowed as element attribute.')
   }
 
@@ -479,7 +479,7 @@ function HTMLElement (element, id, className, style) {
     update = update !== false
     timingFunction = timingFunction || 'ease'
     property = validateProperty(property, true)
-    let transitionString = property + ' ' + (duration || 0) + 's' + ((delay !== undefined || timingFunction !== 'ease') ? ' ' + timingFunction : '') + (delay !== undefined ? ' ' + delay + 's' : '')
+    let transitionString = property + ' ' + (duration || 0) + 's' + ((delay || timingFunction !== 'ease') ? ' ' + timingFunction : '') + (delay ? ' ' + delay + 's' : '')
 
     this.transitions[className][property] = {}
     this.transitions[className][property][0] = transitionString
@@ -680,7 +680,7 @@ function HTMLElement (element, id, className, style) {
 
   this.getClassNames = function () {
     if (!this.element.className) {
-      return {}
+      return []
     }
 
     if (this.element.className.split) {
@@ -693,7 +693,7 @@ function HTMLElement (element, id, className, style) {
 
     let elementClassList = this.element.classList
     if (elementClassList) {
-      let classList = {}
+      let classList = []
       for (let i = 0; i < elementClassList.length; i++) {
         classList.push(elementClassList[i])
       }
@@ -701,7 +701,7 @@ function HTMLElement (element, id, className, style) {
       return classList
     }
 
-    return {}
+    return []
   }
 
   this.getIndex = function () {

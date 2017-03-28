@@ -1,5 +1,7 @@
 import {UniformsUtils, Vector4} from 'three'
-import glslify from 'glslify'
+
+import VertexShader from './shader/Displacement.vert'
+import FragmentShader from './shader/Displacement.frag'
 
 const DisplacementShader = {
   uniforms: UniformsUtils.merge([
@@ -12,8 +14,8 @@ const DisplacementShader = {
       'color': {type: 'v4', value: new Vector4(0, 0, 0, 0)}
     }
   ]),
-  vertexShader: glslify('./shaders/Displacement.vert'),
-  fragmentShader: glslify('./shaders/Displacement.frag')
+  vertexShader: VertexShader,
+  fragmentShader: FragmentShader
 }
 
 export {DisplacementShader}

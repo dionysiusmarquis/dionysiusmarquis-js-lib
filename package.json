@@ -12,13 +12,9 @@
     "three": "^0.84.0"
   },
   "devDependencies": {
-    "gulp": "*",
-    "gulp-resolve-dependencies": "*",
-    "gulp-concat": "*",
-    "gulp-replace": "*",
-    "gulp-rename": "*",
-    "gulp-uglify": "*",
-    "browserify": "*",
-    "q": "*"
+    "eslint": "^3.18.0",
+    "eslint-config-standard": "^7.1.0",
+    "rollup": "^0.41.6",
+    "rollup-plugin-eslint": "^3.0.0"
   }
 }

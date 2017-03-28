@@ -1,5 +1,7 @@
 import {UniformsUtils, Vector2, Vector3} from 'three'
-import glslify from 'glslify'
+
+import VertexShader from './shader/BezierModifier.vert'
+import FragmentShader from './shader/BezierModifier.frag'
 
 const BezierModifierShader = {
   uniforms: UniformsUtils.merge([
@@ -23,8 +25,8 @@ const BezierModifierShader = {
       'tDiffuse': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/BezierModifier.vert'),
-  fragmentShader: glslify('./shaders/BezierModifier.frag')
+  vertexShader: VertexShader,
+  fragmentShader: FragmentShader
 }
 
 export {BezierModifierShader}

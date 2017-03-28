@@ -1,5 +1,11 @@
 import {UniformsUtils, Vector2} from 'three'
-import glslify from 'glslify'
+
+import SemVertexShader from './shaders/Sem.vert'
+import SemFragmentShader from './shaders/Sem.frag'
+import SemNormalVertexShader from './shaders/SemNormal.vert'
+import SemNormalFragmentShader from './shaders/SemNormal.frag'
+import SemPhongVertexShader from './shaders/SemPhong.vert'
+import SemPhongFragmentShader from './shaders/SemPhong.frag'
 
 const SemShader = {
   uniforms: UniformsUtils.merge([
@@ -7,8 +13,8 @@ const SemShader = {
       'tMatCap': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/Sem.vert'),
-  fragmentShader: glslify('./shaders/Sem.frag')
+  vertexShader: SemVertexShader,
+  fragmentShader: SemFragmentShader
 }
 
 const SemNormalShader = {
@@ -28,8 +34,8 @@ const SemNormalShader = {
       'normalRepeat': {type: 'f', value: -1}
     }
   ]),
-  vertexShader: glslify('./shaders/SemNormal.vert'),
-  fragmentShader: glslify('./shaders/SemNormal.frag')
+  vertexShader: SemNormalVertexShader,
+  fragmentShader: SemNormalFragmentShader
 }
 
 const SemPhongShader = {
@@ -38,8 +44,8 @@ const SemPhongShader = {
       'tMatCap': {type: 't', value: null}
     }
   ]),
-  vertexShader: glslify('./shaders/SemPhong.vert'),
-  fragmentShader: glslify('./shaders/SemPhong.frag')
+  vertexShader: SemPhongVertexShader,
+  fragmentShader: SemPhongFragmentShader
 }
 
 export {
