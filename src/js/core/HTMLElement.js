@@ -1,115 +1,118 @@
-import {EventTarget, Event} from './EventTarget'
+import { ObjectUtil } from './../utils/Utils'
+import * as dm from './EventTarget'
 
-import {ObjectUtil} from './../utils/Utils'
+class HTMLElement extends dm.EventTarget {
+  constructor (element, id, className, style) {
+    super()
+    this.element = null
+    /* ToDO: create getter setter */
+    this.id = id
+    this.children = []
+    this.className = className
+    this.style = style
+    this.parent = null
 
-function HTMLElement (element, id, className, style) {
-  EventTarget.call(this)
-  let self = this
+    this._isSelectable = true
+    this._isFullscreen = false
 
-  this.id = id
-  this.className = className
-  this.style = style
-  this.parent = null
+    this._transitions = {}
 
-  this.isSelectable = true
-  this.isFullscreen = false
+    if (!element) {
+      throw new Error('HTMLElement: element attribute can not be null.')
+    }
 
-  this.element = null
-  this.children = []
-  this.transitions = {}
+    if (!(element instanceof window.HTMLElement) && !(element instanceof window.SVGElement)) {
+      throw new Error('HTMLElement: ' + element.constructor.name + ' not allowed as element attribute.')
+    }
 
-  if (!element) {
-    throw new Error('HTMLElement: element attribute can not be null.')
+    this.createElement(element)
+    this.isDisplayObject = true
   }
 
-  if (!(element instanceof window.HTMLElement) && !(element instanceof window.SVGElement)) {
-    throw new Error('HTMLElement: ' + element.constructor.name + ' not allowed as element attribute.')
-  }
-
-  function addDefaultListener () {
+  _addDefaultListener () {
     if (typeof document.body.style['transition'] !== 'undefined') {
-      self.element.addEventListener('transitionend', transitionEndHandler)
-      self.element.addEventListener('animationend', animationEndListener)
+      this.element.addEventListener('transitionend', event => this._transitionEndHandler(event))
+      this.element.addEventListener('animationend', event => this._animationEndListener(event))
     } else if (typeof document.body.style['WebkitTransition'] !== 'undefined') {
-      self.element.addEventListener('webkitTransitionEnd', transitionEndHandler)
-      self.element.addEventListener('webkitAnimationEnd', animationEndListener)
+      this.element.addEventListener('webkitTransitionEnd', event => this._transitionEndHandler(event))
+      this.element.addEventListener('webkitAnimationEnd', event => this._animationEndListener(event))
     } else if (typeof document.body.style['MozTransition'] !== 'undefined') {
-      self.element.addEventListener('transitionend', transitionEndHandler)
-      self.element.addEventListener('animationend', animationEndListener)
+      this.element.addEventListener('transitionend', event => this._transitionEndHandler(event))
+      this.element.addEventListener('animationend', event => this._animationEndListener(event))
     } else if (typeof document.body.style['OTransition'] !== 'undefined') {
-      self.element.addEventListener('oTransitionEnd', transitionEndHandler)
-      self.element.addEventListener('oAnimationEnd', animationEndListener)
+      this.element.addEventListener('oTransitionEnd', event => this._transitionEndHandler(event))
+      this.element.addEventListener('oAnimationEnd', event => this._animationEndListener(event))
     }
   }
 
-  function transitionEndHandler (event) {
-    if (event.target !== self.element) {
+  _transitionEndHandler (event) {
+    if (event.target !== this.element) {
       return
     }
 
     // if(event.stopPropagation)
     // event.stopPropagation();
 
-    let transition = self.getTransition(event.propertyName)
+    let transition = this.getTransition(event.propertyName)
 
-    if (self.transitions[1]) {
-      let transitions = self.transitions[1][event.propertyName]
+    if (this._transitions[1]) {
+      let transitions = this._transitions[1][event.propertyName]
       if (transitions) {
-        delete self.transitions[1][event.propertyName]
-        self.updateTransitionString()
+        delete this._transitions[1][event.propertyName]
+        this.updateTransitionString()
       }
     }
 
     if (transition && transition[1]) {
-      transition[1].call(transition[2] || self)
+      transition[1].call(transition[2] || this)
     }
 
-    self.dispatchEvent(new Event('transitionend', event))
+    this.dispatchEvent(new dm.Event('transitionend', event))
   }
 
-  function animationEndListener (event) {
-    if (event.target !== self.element) {
+  _animationEndListener (event) {
+    if (event.target !== this.element) {
       return
     }
 
-    self.dispatchEvent(new Event('animationend', event))
+    this.dispatchEvent(new dm.Event('animationend', event))
   }
 
-  function fullscreenChangeHandler (event) {
+  _fullscreenChangeHandler (event) {
     let isFullscreen =
       document.isFullscreen ||
       document.mozIsFillScreen ||
       document.webkitIsFullScreen
 
-    self.isFullscreen = isFullscreen
+    this._isFullscreen = isFullscreen
 
-    self.dispatchEvent(new Event('fullscreenchange', {isFullscreen: isFullscreen}))
+    this.dispatchEvent(new dm.Event('fullscreenchange', {isFullscreen: isFullscreen}))
   }
 
-  function validateProperty (property, lowercase) {
-    let regex = self.ATTRIBUTE_REGEX
+  _validateProperty (property, lowercase) {
+    let regex = HTMLElement.ATTRIBUTE_REGEX
     if (regex.test(property)) {
-      property = property.replace(regex, function (match, firstLetter) {
+      property = property.replace(regex, (match, firstLetter) => {
         return firstLetter.toUpperCase()
       })
     }
 
     if (typeof document.body.style[property] !== 'undefined') {
       if (lowercase) {
-        if (property.indexOf(self.VENDOR_PREFIX) === -1) {
-          return getCssProperty(property)
+        if (property.indexOf(this.VENDOR_PREFIX) === -1) {
+          return this._getCssProperty(property)
         } else {
-          property = property.replace(self.VENDOR_PREFIX, '')
+          property = property.replace(this.VENDOR_PREFIX, '')
         }
       } else {
         return property
       }
     }
 
-    let vendorProperty = self.VENDOR_PREFIX + property.charAt(0).toUpperCase() + property.slice(1)
+    let vendorProperty = this.VENDOR_PREFIX + property.charAt(0).toUpperCase() + property.slice(1)
     if (typeof document.body.style[vendorProperty] !== 'undefined') {
       if (lowercase) {
-        return '-' + getCssProperty(vendorProperty)
+        return '-' + this._getCssProperty(vendorProperty)
       } else {
         return vendorProperty
       }
@@ -122,24 +125,24 @@ function HTMLElement (element, id, className, style) {
     // console.error("no valid property found for ", property);
   }
 
-  function validateProperties (properties, lowercase) {
+  _validateProperties (properties, lowercase) {
     let validatedObject = {}
     for (let property in properties) {
-      validatedObject[validateProperty(property, lowercase)] = properties[property]
+      validatedObject[this._validateProperty(property, lowercase)] = properties[property]
     }
     return validatedObject
   }
 
-  function getCssProperty (property) {
-    return property.replace(/[A-Z]/g, function (match) {
+  _getCssProperty (property) {
+    return property.replace(/[A-Z]/g, (match) => {
       return '-' + match.toLowerCase()
     })
   }
 
   /* function hasClassTransition () {
-   let classNames = self.getClassNames()
+   let classNames = this.getClassNames()
    for (let i = 0; i < classNames.length; i++) {
-   if (self.transitions[classNames[i]]) {
+   if (this._transitions[classNames[i]]) {
    return true
    }
    }
@@ -147,28 +150,28 @@ function HTMLElement (element, id, className, style) {
    return false
    } */
 
-  this.addChild = function (child) {
+  addChild (child) {
     this.children.push(child)
     child.setParent(this)
 
     return child
   }
 
-  this.addChildAt = function (child, index) {
+  addChildAt (child, index) {
     this.addChild(child)
     this.setChildIndex(child, index)
 
     return child
   }
 
-  this.removeChild = function (child) {
+  removeChild (child) {
     this.children.splice(this.children.indexOf(child), 1)
     child.setParent(null)
 
     return child
   }
 
-  this.createElement = function (src) {
+  createElement (src) {
     if (!src) {
       return
     }
@@ -196,21 +199,21 @@ function HTMLElement (element, id, className, style) {
     this.className = this.getClassNames().join(' ')
     this.addClassName(classNameToAdd || '')
 
-    addDefaultListener()
+    this._addDefaultListener()
   }
 
-  this.appendToElement = function (parentElement) {
+  appendToElement (parentElement) {
     parentElement.appendChild(this.element)
   }
 
-  this.setStyle = function (style, validate) {
+  setStyle (style, validate) {
     if (!style) {
       return
     }
     validate = validate === undefined ? true : validate
 
     for (let key in style) {
-      let property = validate ? validateProperty(key) : key
+      let property = validate ? this._validateProperty(key) : key
       if (property) {
         this.element.style[property] = style[key] === null ? '' : style[key]
       }
@@ -218,7 +221,7 @@ function HTMLElement (element, id, className, style) {
     this.style = this.element.style
   }
 
-  this.setId = function (id) {
+  setId (id) {
     this.id = (!id || id === '') ? null : id
     if (this.element) {
       if (this.id) {
@@ -229,7 +232,7 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setClassName = function (className) {
+  setClassName (className) {
 //    if (!className && className != "")
 //      return;
 //    this.element.className = this.className = className == "" ? null : className;
@@ -243,7 +246,7 @@ function HTMLElement (element, id, className, style) {
     this.updateTransitionString()
   }
 
-  this.addClassName = function (className) {
+  addClassName (className) {
     if (!className || className === '' || (this.className && this.hasClassName(className))) {
       return
     }
@@ -251,7 +254,7 @@ function HTMLElement (element, id, className, style) {
     this.setClassName(startString + className)
   }
 
-  this.toggleClassName = function (className) {
+  toggleClassName (className) {
     let classNames = this.getClassNames()
     let index = classNames.indexOf(className)
     if (index !== -1) {
@@ -263,7 +266,7 @@ function HTMLElement (element, id, className, style) {
     this.setClassName(classNames.join(' '))
   }
 
-  this.removeClassName = function (className) {
+  removeClassName (className) {
     if (!this.className) {
       return
     }
@@ -276,7 +279,7 @@ function HTMLElement (element, id, className, style) {
     this.setClassName(classNames.join(' '))
   }
 
-  this.setParent = function (targetParent) {
+  setParent (targetParent) {
     if (targetParent) {
       if (targetParent.element !== this.element.parentElement) {
         targetParent.element.appendChild(this.element)
@@ -288,7 +291,7 @@ function HTMLElement (element, id, className, style) {
     this.parent = targetParent
   }
 
-  this.setIndex = function (index) {
+  setIndex (index) {
     if (!this.parent) {
       return
     }
@@ -316,7 +319,7 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setChildIndex = function (child, index) {
+  setChildIndex (child, index) {
     let childIndex = this.getChildIndex(child)
     if (childIndex === index) {
       return
@@ -336,7 +339,7 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setPointer = function (pointer) {
+  setPointer (pointer) {
     if (pointer) {
       this.setStyle({cursor: 'pointer'})
     } else {
@@ -344,7 +347,7 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setPointerEvents = function (pointerEvents, force) {
+  setPointerEvents (pointerEvents, force) {
     if (pointerEvents) {
       if (force) {
         this.setStyle({pointerEvents: 'all'})
@@ -356,8 +359,8 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setSelectable = function (selectable) {
-    this.isSelectable = selectable
+  setSelectable (selectable) {
+    this._isSelectable = selectable
 
     if (!selectable) {
       this.setStyle({
@@ -370,7 +373,7 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.setVisible = function (visible) {
+  setVisible (visible) {
     if (visible) {
       this.setStyle({display: null})
     } else {
@@ -378,16 +381,16 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.toggleFullscreen = function () {
-    if (this.isFullscreen) {
+  toggleFullscreen () {
+    if (this._isFullscreen) {
       this.cancelFullscreen()
     } else {
       this.requestFullscreen()
     }
   }
 
-  this.requestFullscreen = function () {
-    this.isFullscreen = true
+  requestFullscreen () {
+    this._isFullscreen = true
 
     if (this.element.requestFullscreen) {
       this.element.requestFullscreen()
@@ -397,13 +400,13 @@ function HTMLElement (element, id, className, style) {
       this.element.webkitRequestFullscreen()
     }
 
-    document.addEventListener('fullscreenchange', fullscreenChangeHandler)
-    document.addEventListener('webkitfullscreenchange', fullscreenChangeHandler)
-    document.addEventListener('mozfullscreenchange', fullscreenChangeHandler)
+    document.addEventListener('fullscreenchange', event => this._fullscreenChangeHandler(event))
+    document.addEventListener('webkitfullscreenchange', event => this._fullscreenChangeHandler(event))
+    document.addEventListener('mozfullscreenchange', event => this._fullscreenChangeHandler(event))
   }
 
-  this.cancelFullscreen = function () {
-    this.isFullscreen = false
+  cancelFullscreen () {
+    this._isFullscreen = false
 
     if (document.cancelFullscreen) {
       document.cancelFullscreen()
@@ -414,26 +417,26 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.transitionFrom = function (startValues, values, duration, timingFunction, delay, callback) {
+  transitionFrom (startValues, values, duration, timingFunction, delay, callback) {
     this.setStyle(startValues)
 
-    setTimeout(function () {
-      self.transition(values, duration, timingFunction, delay, callback)
+    setTimeout(() => {
+      this.transition(values, duration, timingFunction, delay, callback)
     }, 50)
   }
 
-  this.transition = function (values, duration, timingFunction, delay, callback, callee) {
+  transition (values, duration, timingFunction, delay, callback, callee) {
     if (duration === 0) {
       return
     }
 
-    values = validateProperties(values)
+    values = this._validateProperties(values)
 
     let value
     let properties = []
     let property
     let propertyFound = false
-    let supportsTransition = validateProperty('transition')
+    let supportsTransition = this._validateProperty('transition')
 
     for (property in values) {
       value = values[property] || values[property] === 0 ? String(values[property]) : ''
@@ -458,9 +461,9 @@ function HTMLElement (element, id, className, style) {
         this.addTransitions(1, properties, duration, timingFunction, delay, callback, callee, true)
       }
 
-      setTimeout(function () {
-        // self.setStyle(values, false); ???
-        self.setStyle(values)
+      setTimeout(() => {
+        // this.setStyle(values, false); ???
+        this.setStyle(values)
         if (!supportsTransition && callback) {
           callback.call(callee || this)
         }
@@ -468,23 +471,23 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.addTransition = function (className, property, duration, timingFunction, delay, callback, callee, override, update) {
+  addTransition (className, property, duration, timingFunction, delay, callback, callee, override, update) {
     className = className || 0
-    if (!this.transitions[className]) {
-      this.transitions[className] = {}
+    if (!this._transitions[className]) {
+      this._transitions[className] = {}
     }
-    if (!override && this.transitions[className][property]) {
+    if (!override && this._transitions[className][property]) {
       return
     }
     update = update !== false
     timingFunction = timingFunction || 'ease'
-    property = validateProperty(property, true)
+    property = this._validateProperty(property, true)
     let transitionString = property + ' ' + (duration || 0) + 's' + ((delay || timingFunction !== 'ease') ? ' ' + timingFunction : '') + (delay ? ' ' + delay + 's' : '')
 
-    this.transitions[className][property] = {}
-    this.transitions[className][property][0] = transitionString
-    this.transitions[className][property][1] = callback
-    this.transitions[className][property][2] = callee
+    this._transitions[className][property] = {}
+    this._transitions[className][property][0] = transitionString
+    this._transitions[className][property][1] = callback
+    this._transitions[className][property][2] = callee
     if (update) {
       this.updateTransitionString()
     }
@@ -492,7 +495,7 @@ function HTMLElement (element, id, className, style) {
     return transitionString
   }
 
-  this.addTransitions = function (className, properties, durations, timingFunctions, delays, callback, callee, override, update) {
+  addTransitions (className, properties, durations, timingFunctions, delays, callback, callee, override, update) {
     update = update !== false
     let multipleDurations = !(!durations || typeof durations === 'number')
     let multipleTimingFunctions = !(!timingFunctions || typeof timingFunctions === 'string')
@@ -503,8 +506,8 @@ function HTMLElement (element, id, className, style) {
     let transitions
     let property
     for (let i = 0; i < properties.length; i++) {
-      transitions = this.transitions[className || 0]
-      property = validateProperty(properties[i], true)
+      transitions = this._transitions[className || 0]
+      property = this._validateProperty(properties[i], true)
       if (!override && transitions && transitions[property]) {
         continue
       }
@@ -529,14 +532,14 @@ function HTMLElement (element, id, className, style) {
     return transitionStrings
   }
 
-  this.updateTransition = function (className, property, duration, timingFunction, delay) {
+  updateTransition (className, property, duration, timingFunction, delay) {
     className = className || 0
-    let transitions = this.transitions[className]
+    let transitions = this._transitions[className]
     if (!transitions) {
       return
     }
 
-    property = validateProperty(property, true)
+    property = this._validateProperty(property, true)
     let transition = transitions[property][0]
     if (!transition) {
       return
@@ -560,24 +563,24 @@ function HTMLElement (element, id, className, style) {
     this.updateTransitionString()
   }
 
-  this.updateTransitionString = function () {
+  updateTransitionString () {
     let styleTransitionString = ''
     let mergedTransitions
-    let supportsTransition = validateProperty('transition')
+    let supportsTransition = this._validateProperty('transition')
 
     let i, key, hasKeys
-    for (key in this.transitions[1]) {
+    for (key in this._transitions[1]) {
       hasKeys = true
       break
     }
 
     if (hasKeys) {
-      mergedTransitions = ObjectUtil.clone(this.transitions[1])
+      mergedTransitions = ObjectUtil.clone(this._transitions[1])
     } else {
-      mergedTransitions = ObjectUtil.clone(this.transitions[0])
+      mergedTransitions = ObjectUtil.clone(this._transitions[0])
     }
 
-    // if(!this.transitions[1] && this.className) {
+    // if(!this._transitions[1] && this.className) {
     if (this.className) {
       let className
       let transitions
@@ -588,11 +591,11 @@ function HTMLElement (element, id, className, style) {
         mergedTransitions = {}
       }
 
-      // if(this.transitions[0])
-      if (this.transitions[0] && hasKeys) {
-        for (key in this.transitions[0]) {
+      // if(this._transitions[0])
+      if (this._transitions[0] && hasKeys) {
+        for (key in this._transitions[0]) {
           if (!mergedTransitions[key]) {
-            mergedTransitions[key] = this.transitions[0][key]
+            mergedTransitions[key] = this._transitions[0][key]
           }
         }
       }
@@ -600,7 +603,7 @@ function HTMLElement (element, id, className, style) {
       let classNames = this.getClassNames()
       for (i = 0; i < classNames.length; i++) {
         className = classNames[i]
-        transitions = this.transitions[className]
+        transitions = this._transitions[className]
         if (transitions) {
           for (key in transitions) {
             mergedTransitions[key] = transitions[key]
@@ -618,7 +621,7 @@ function HTMLElement (element, id, className, style) {
         styleTransitionString += mergedTransitions[key][0]
         i++
       } else {
-        transitionEndHandler({target: this.element, propertyName: key})
+        this._transitionEndHandler({target: this.element, propertyName: key})
       }
     }
 
@@ -630,27 +633,27 @@ function HTMLElement (element, id, className, style) {
     }
   }
 
-  this.removeTransition = function (property, className, styleValues) {
+  removeTransition (property, className, styleValues) {
     if (className !== undefined) {
-      delete this.transitions[className || 0][property]
+      delete this._transitions[className || 0][property]
     } else {
-      for (className in this.transitions) {
-        delete self.transitions[className][property]
+      for (className in this._transitions) {
+        delete this._transitions[className][property]
       }
     }
 
     this.updateTransitionString()
 
     if (styleValues) {
-      setTimeout(function () {
-        self.setStyle(styleValues)
+      setTimeout(() => {
+        this.setStyle(styleValues)
       }, Number.MIN_VALUE)
     }
   }
 
-  this.getTransition = function (property, className) {
+  getTransition (property, className) {
     if (className) {
-      return this.transitions[className || 0][property]
+      return this._transitions[className || 0][property]
     }
 
     let classNames = this.getClassNames()
@@ -660,7 +663,7 @@ function HTMLElement (element, id, className, style) {
     let transitions
     let transition
     for (let i = 0; i < classNames.length; i++) {
-      transitions = self.transitions[classNames[i]]
+      transitions = this._transitions[classNames[i]]
       if (transitions && transitions[property]) {
         transition = transitions[property]
       }
@@ -669,7 +672,7 @@ function HTMLElement (element, id, className, style) {
     return transition
   }
 
-  this.getComputetStyleProperty = function (property, asNumber) {
+  getComputetStyleProperty (property, asNumber) {
     let styleProperty = window.getComputedStyle(this.element, null).getPropertyValue(property)
     if (asNumber) {
       return Number(styleProperty.replace('px', ''))
@@ -678,7 +681,7 @@ function HTMLElement (element, id, className, style) {
     return styleProperty
   }
 
-  this.getClassNames = function () {
+  getClassNames () {
     if (!this.element.className) {
       return []
     }
@@ -704,7 +707,7 @@ function HTMLElement (element, id, className, style) {
     return []
   }
 
-  this.getIndex = function () {
+  getIndex () {
     let index
     if (this.parent.isDisplayObject) {
       index = this.parent.getChildIndex(this)
@@ -719,63 +722,66 @@ function HTMLElement (element, id, className, style) {
     return index
   }
 
-  this.isVisible = function () {
+  isVisible () {
     return !(this.getComputetStyleProperty('display') === 'none')
   }
 
-  this.hasClassName = function (className) {
+  hasClassName (className) {
     return this.getClassNames().indexOf(className) !== -1
   }
-  this.getChildIndex = function (child) {
+
+  getChildIndex (child) {
     return this.children.indexOf(child)
   }
-  this.getStyleProperty = function (property) {
+
+  getStyleProperty (property) {
     return this.style[property]
   }
 
-  this.getChildren = function () {
+  getChildren () {
     return this.children
   }
-  this.getId = function () {
+
+  getId () {
     return this.element.id
   }
-  this.getStyle = function () {
+
+  getStyle () {
     return this.style
   }
-  this.getClassName = function () {
+
+  getClassName () {
     return this.className
   }
-  this.getElement = function () {
+
+  getElement () {
     return this.element
   }
-  this.getParent = function () {
+
+  getParent () {
     return this.parent
   }
 
-  this.getWidth = function () {
+  getWidth () {
     return this.element.offsetWidth
   }
-  this.getHeight = function () {
+
+  getHeight () {
     return this.element.offsetHeight
   }
 
-  this.getIsSelectable = function () {
-    return this.isSelectable
-  }
-  this.getIsFullscreen = function () {
-    return this.isFullscreen
+  getIsSelectable () {
+    return this._isSelectable
   }
 
-  this.createElement(element)
-
-  this.isDisplayObject = true
+  getIsFullscreen () {
+    return this._isFullscreen
+  }
 }
+HTMLElement.ATTRIBUTE_REGEX = /-([a-z])/gi
 
-HTMLElement.prototype = Object.create(EventTarget.prototype)
-HTMLElement.prototype.ATTRIBUTE_REGEX = /-([a-z])/gi
-
-document.addEventListener('DOMContentLoaded', function () {
-  HTMLElement.prototype.VENDOR_PREFIX = (function () {
+document.addEventListener('DOMContentLoaded', event => {
+  HTMLElement.VENDOR_PREFIX = (() => {
     let regex = /^(Moz|Webkit|webkit|Khtml|O|ms|Icab)(?=[A-Z])/
 
     for (let key in document.body.style) {
@@ -794,7 +800,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return property.match(regex)[0]
       }
     }
-  }())
+  })()
 })
 
 export default HTMLElement

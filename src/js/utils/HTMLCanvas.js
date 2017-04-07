@@ -3,33 +3,34 @@ import canvg from 'canvg-fixed'
 import * as dm from './../../../core'
 import {ImageLoader} from './../utils/ImageLoader'
 
-function HTMLCanvas (element, canvas, autoSize, useImageSize) {
-  dm.HTMLElement.call(this, element)
+class HTMLCanvas extends dm.HTMLElement {
+  constructor (element, canvas, autoSize = true, useImageSize = false) {
+    super(element)
 
-  this.canvas = canvas || document.createElement('canvas')
-  this.context = this.canvas.getContext('2d')
+    this.canvas = canvas || document.createElement('canvas')
+    this.context = this.canvas.getContext('2d')
+
+    this.imageLoader = new ImageLoader()
+    this.imageLoader.addEventListener(ImageLoader.EVENT_INVALIDATE, event => {
+      this.dispatchEvent(new Event(HTMLCanvas.EVENT_INVALIDATE))
+    })
+
+    let userAgend = navigator.userAgent
+    this._isDesktopChrome = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(userAgend) && /Chrome/i.test(userAgend)
+    this._isDesktopChrome = false
+
+    this.autoSize = autoSize
+    this.useImageSize = useImageSize
+
+    this.useDevicePixelRatio = false
+  }
+
   // console.log(this.context);
 
-  let self = this
-
-  let imageLoader = new ImageLoader()
-  imageLoader.addEventListener(ImageLoader.EVENT_INVALIDATE, function (event) {
-    self.dispatchEvent(new Event(HTMLCanvas.EVENT_INVALIDATE))
-  })
-
-  let userAgend = navigator.userAgent
-  let isDesktopChrome = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(userAgend) && /Chrome/i.test(userAgend)
-  isDesktopChrome = false
-
-  this.autoSize = autoSize !== false
-  this.useImageSize = useImageSize === undefined ? false : useImageSize
-
-  this.useDevicePixelRatio = false
-
-  // if(!isDesktopChrome)
+  // if(!this._isDesktopChrome)
   //   this.canvas.style.letterSpacing = "normal";
 
-  /* function getAlphaColor (color, alpha) {
+  /* _getAlphaColor (color, alpha) {
     if (alpha < 1) {
       if (color.indexOf('rgb') === -1) {
         color = color.replace('#', '')
@@ -54,7 +55,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return color
   } */
 
-  function svgFixIE (xml) {
+  _svgFixIE (xml) {
     // console.log(xml);
 
     let start = xml.indexOf('<svg')
@@ -76,7 +77,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return xml
   }
 
-  function getLineHeight (element) {
+  _getLineHeight (element) {
     let clone = element.cloneNode()
     // text.innerHTML = "XpÉ +eta–x- OQ_ξ";
     clone.style.display = 'block'
@@ -94,7 +95,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return result
   }
 
-  function getWidth (element, styleProperties, isImage) {
+  _getWidth (element, styleProperties, isImage) {
     // if(!styleProperties)
     //   styleProperties = window.getComputedStyle(element, null);
 
@@ -106,11 +107,11 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     //   width = width === "auto" || width === "" ? element.offsetWidth : Number(width.replace("px", ""));
 
     let width
-    if (isImage && self.useImageSize) {
+    if (isImage && this.useImageSize) {
       width = element.width
     } else {
       width = element.offsetWidth
-      if (self.useDevicePixelRatio && window.devicePixelRatio) {
+      if (this.useDevicePixelRatio && window.devicePixelRatio) {
         width *= window.devicePixelRatio
       }
     }
@@ -118,7 +119,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return Math.floor(width)
   }
 
-  function getHeight (element, styleProperties, isImage) {
+  _getHeight (element, styleProperties, isImage) {
     // if(!styleProperties)
     //   styleProperties = window.getComputedStyle(element, null);
 
@@ -130,11 +131,11 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     //   height = height === "auto" || height === "" ? element.offsetHeight : Number(height.replace("px", ""));
 
     let height
-    if (isImage && self.useImageSize) {
+    if (isImage && this.useImageSize) {
       height = element.height
     } else {
       height = element.offsetHeight
-      if (self.useDevicePixelRatio && window.devicePixelRatio) {
+      if (this.useDevicePixelRatio && window.devicePixelRatio) {
         height *= window.devicePixelRatio
       }
     }
@@ -142,7 +143,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return Math.floor(height)
   }
 
-  function drawBorder (styleProperties, width, height, color, alpha) {
+  _drawBorder (styleProperties, width, height, color, alpha) {
     let borderTopWidth = styleProperties.getPropertyValue('border-top-width')
     let borderBottomWidth = styleProperties.getPropertyValue('border-bottom-width')
     let borderLeftWidth = styleProperties.getPropertyValue('border-left-width')
@@ -161,60 +162,60 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
       return
     }
 
-    self.context.save()
-    self.context.globalAlpha = alpha
-    self.context.beginPath()
+    this.context.save()
+    this.context.globalAlpha = alpha
+    this.context.beginPath()
 
     if (borderTopWidth !== 0) {
-      // self.context.strokeStyle = getAlphaColor(borderTopColor, alpha);
-      self.context.lineWidth = borderTopWidth * 2
+      // this.context.strokeStyle = getAlphaColor(borderTopColor, alpha);
+      this.context.lineWidth = borderTopWidth * 2
 
-      self.context.moveTo(0, 0)
-      self.context.lineTo(width, 0)
+      this.context.moveTo(0, 0)
+      this.context.lineTo(width, 0)
     }
     if (borderBottomWidth !== 0) {
-      // self.context.strokeStyle = getAlphaColor(borderBottomColor, alpha);
-      self.context.lineWidth = borderBottomWidth * 2
+      // this.context.strokeStyle = getAlphaColor(borderBottomColor, alpha);
+      this.context.lineWidth = borderBottomWidth * 2
 
-      self.context.moveTo(0, height)
-      self.context.lineTo(width, height)
+      this.context.moveTo(0, height)
+      this.context.lineTo(width, height)
     }
     if (borderLeftWidth !== 0) {
-      // self.context.strokeStyle = getAlphaColor(borderLeftColor, alpha);
-      self.context.lineWidth = borderLeftWidth * 2
+      // this.context.strokeStyle = getAlphaColor(borderLeftColor, alpha);
+      this.context.lineWidth = borderLeftWidth * 2
 
-      self.context.moveTo(0, 0)
-      self.context.lineTo(0, height)
+      this.context.moveTo(0, 0)
+      this.context.lineTo(0, height)
     }
     if (borderRightWidth !== 0) {
-      // self.context.strokeStyle = getAlphaColor(borderRightColor, alpha);
-      self.context.lineWidth = borderRightWidth * 2
+      // this.context.strokeStyle = getAlphaColor(borderRightColor, alpha);
+      this.context.lineWidth = borderRightWidth * 2
 
-      self.context.moveTo(width, 0)
-      self.context.lineTo(width, height)
+      this.context.moveTo(width, 0)
+      this.context.lineTo(width, height)
     }
 
-    self.context.stroke()
+    this.context.stroke()
 
-    self.context.restore()
+    this.context.restore()
   }
 
-  function drawBackground (styleProperties, width, height, alpha) {
+  _drawBackground (styleProperties, width, height, alpha) {
     let backgroundColor = styleProperties.getPropertyValue('background-color')
 
     if (backgroundColor.indexOf('0)') === -1) {
-      self.context.save()
+      this.context.save()
 
-      self.context.globalAlpha = alpha
-      self.context.setTransform(1, 0, 0, 1, 0, 0)
-      self.context.fillStyle = backgroundColor
-      self.context.fillRect(0, 0, width, height)
+      this.context.globalAlpha = alpha
+      this.context.setTransform(1, 0, 0, 1, 0, 0)
+      this.context.fillStyle = backgroundColor
+      this.context.fillRect(0, 0, width, height)
 
-      self.context.restore()
+      this.context.restore()
     }
   }
 
-  function drawBackgroundImage (image, styleProperties, width, height, alpha) {
+  _drawBackgroundImage (image, styleProperties, width, height, alpha) {
     let backgroundRepeat = styleProperties.getPropertyValue('background-repeat')
     let backgroundPositionX = styleProperties.getPropertyValue('background-position-x')
     let backgroundPositionY = styleProperties.getPropertyValue('background-position-y')
@@ -222,21 +223,21 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     backgroundPositionX = Number(backgroundPositionX.replace('px', ''))
     backgroundPositionY = Number(backgroundPositionY.replace('px', ''))
 
-    self.context.save()
+    this.context.save()
 
-    let pattern = self.context.createPattern(image, backgroundRepeat)
-    self.context.globalAlpha = alpha
-    self.context.setTransform(1, 0, 0, 1, 0, 0)
-    self.context.translate(backgroundPositionX, backgroundPositionY)
-    self.context.fillStyle = pattern
-    self.context.fillRect(-backgroundPositionX, -backgroundPositionY, width + backgroundPositionX, height + backgroundPositionY)
+    let pattern = this.context.createPattern(image, backgroundRepeat)
+    this.context.globalAlpha = alpha
+    this.context.setTransform(1, 0, 0, 1, 0, 0)
+    this.context.translate(backgroundPositionX, backgroundPositionY)
+    this.context.fillStyle = pattern
+    this.context.fillRect(-backgroundPositionX, -backgroundPositionY, width + backgroundPositionX, height + backgroundPositionY)
 
-    self.context.restore()
+    this.context.restore()
   }
 
-  function drawImage (image, styleProperties, offsetX, offsetY, alpha, autoSize, clipRect, clearBlack) {
+  _drawImage (image, styleProperties, offsetX, offsetY, alpha, autoSize, clipRect, clearBlack) {
     // console.log(image, image.width, image.height);
-    // console.log(self.canvas, self.canvas.width, self.canvas.height);
+    // console.log(this.canvas, this.canvas.width, this.canvas.height);
 
     let borderTopWidth = styleProperties.getPropertyValue('border-top-width')
     let borderBottomWidth = styleProperties.getPropertyValue('border-bottom-width')
@@ -246,8 +247,8 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     // let paddingBottom = styleProperties.getPropertyValue('padding-bottom')
     let paddingLeft = styleProperties.getPropertyValue('padding-left')
     let paddingRight = styleProperties.getPropertyValue('padding-right')
-    let width = clipRect ? clipRect.width : getWidth(image, styleProperties, true)
-    let height = clipRect ? clipRect.height : getHeight(image, styleProperties, true)
+    let width = clipRect ? clipRect.width : this._getWidth(image, styleProperties, true)
+    let height = clipRect ? clipRect.height : this._getHeight(image, styleProperties, true)
 
     paddingTop = Number(paddingTop.replace('px', ''))
     // paddingBottom = Number(paddingBottom.replace('px', ''))
@@ -259,11 +260,11 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     borderRightWidth = Number(borderRightWidth.replace('px', ''))
 
     if (autoSize) {
-      self.setSize(width, height)
+      this.setSize(width, height)
     }
 
-    drawBackground(styleProperties, width, height, alpha)
-    drawBorder(styleProperties, width, height, null, alpha)
+    this._drawBackground(styleProperties, width, height, alpha)
+    this._drawBorder(styleProperties, width, height, null, alpha)
 
     width -= paddingLeft + paddingRight + borderLeftWidth + borderRightWidth
     height -= paddingLeft + paddingRight + borderTopWidth + borderBottomWidth
@@ -271,48 +272,48 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     offsetX += paddingLeft + borderLeftWidth
     offsetY += paddingTop + borderTopWidth
 
-    self.context.save()
-    self.context.globalAlpha = alpha
-    self.context.setTransform(1, 0, 0, 1, 0, 0)
+    this.context.save()
+    this.context.globalAlpha = alpha
+    this.context.setTransform(1, 0, 0, 1, 0, 0)
     if (clipRect) {
-      self.context.drawImage(image, clipRect.x, clipRect.y, clipRect.width, clipRect.height, offsetX, offsetY, width, height)
+      this.context.drawImage(image, clipRect.x, clipRect.y, clipRect.width, clipRect.height, offsetX, offsetY, width, height)
     } else {
-      self.context.drawImage(image, offsetX, offsetY, width, height)
+      this.context.drawImage(image, offsetX, offsetY, width, height)
     }
     if (clearBlack) {
-      let imageData = self.context.getImageData(offsetX, offsetY, width, height)
+      let imageData = this.context.getImageData(offsetX, offsetY, width, height)
       let i
       for (i = 0; i < imageData.data.length; i += 4) {
         imageData.data[i + 3] = imageData.data[i]
       }
-      self.context.putImageData(imageData, offsetX, offsetY)
+      this.context.putImageData(imageData, offsetX, offsetY)
     }
-    self.context.restore()
+    this.context.restore()
   }
 
-  function drawMaskedImage (image, styleProperties, offsetX, offsetY, alpha, autoSize) {
-    let width = getWidth(element, styleProperties, true)
-    let height = Math.floor(getHeight(element, styleProperties, true) / 2)
-    let compositeOperation = self.context.globalCompositeOperation
+  _drawMaskedImage (image, styleProperties, offsetX, offsetY, alpha, autoSize) {
+    let width = this._getWidth(this.element, styleProperties, true)
+    let height = Math.floor(this._getHeight(this.element, styleProperties, true) / 2)
+    let compositeOperation = this.context.globalCompositeOperation
 
-    drawImage(image, styleProperties, offsetX, offsetY, alpha, autoSize, {
+    this._drawImage(image, styleProperties, offsetX, offsetY, alpha, autoSize, {
       x: 0,
       y: height,
       width: width,
       height: height
     }, true)
-    self.context.globalCompositeOperation = 'source-in'
-    drawImage(image, styleProperties, offsetX, offsetY, alpha, autoSize, {x: 0, y: 0, width: width, height: height})
-    self.context.globalCompositeOperation = compositeOperation
+    this.context.globalCompositeOperation = 'source-in'
+    this._drawImage(image, styleProperties, offsetX, offsetY, alpha, autoSize, {x: 0, y: 0, width: width, height: height})
+    this.context.globalCompositeOperation = compositeOperation
   }
 
-  function resizeToElement (element) {
+  _resizeToElement (element) {
     let styleProperties = window.getComputedStyle(element, null)
     let isImage = element.nodeName === 'IMG'
-    self.setSize(getWidth(element, styleProperties, isImage), getHeight(element, styleProperties, isImage))
+    this.setSize(this._getWidth(element, styleProperties, isImage), this._getHeight(element, styleProperties, isImage))
   }
 
-  function getNestedChildren (element, array) {
+  _getNestedChildren (element, array) {
     let nestedChildren = array || []
 
     let nestedCountTemp = nestedChildren.length
@@ -321,7 +322,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     for (i = 0; i < children.length; i++) {
       child = children[i]
       if (child.childElementCount) {
-        getNestedChildren(child, nestedChildren)
+        this._getNestedChildren(child, nestedChildren)
         if (nestedChildren.length === nestedCountTemp) {
           nestedChildren.push(child)
         }
@@ -335,7 +336,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     return nestedChildren
   }
 
-  this.addDOMElement = function (element, offsetX, offsetY, color, alpha, autoSize) {
+  addDOMElement (element, offsetX, offsetY, color, alpha, autoSize) {
     if (element.childElementCount === undefined) {
       return
     }
@@ -346,12 +347,12 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     offsetY = offsetY || 0
 
     if (autoSize) {
-      resizeToElement(element)
+      this._resizeToElement(element)
     }
 
     let children
     if (element.childElementCount) {
-      children = getNestedChildren(element)
+      children = this._getNestedChildren(element)
       // console.log(children);
 
       let i, child, elementRect, childRect
@@ -380,7 +381,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     }
   }
 
-  this.addImage = function (element, offsetX, offsetY, alpha, autoSize, maskedImage) {
+  addImage (element, offsetX, offsetY, alpha, autoSize, maskedImage) {
     offsetX = offsetX || 0
     offsetY = offsetY || 0
 
@@ -391,32 +392,32 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
 
     let styleProperties = window.getComputedStyle(element, null)
 
-    imageLoader.add(
+    this.imageLoader.add(
       element,
-      function () {
+      () => {
         if (maskedImage) {
-          drawMaskedImage(element, styleProperties, offsetX, offsetY, alpha, autoSize)
+          this._drawMaskedImage(element, styleProperties, offsetX, offsetY, alpha, autoSize)
         } else {
-          drawImage(element, styleProperties, offsetX, offsetY, alpha, autoSize)
+          this._drawImage(element, styleProperties, offsetX, offsetY, alpha, autoSize)
         }
-        self.dispatchEvent(new Event(HTMLCanvas.EVENT_LOAD))
-        self.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
+        this.dispatchEvent(new Event(HTMLCanvas.EVENT_LOAD))
+        this.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
       }
     )
   }
 
-  this.addSvgElement = function (element, offsetX, offsetY, autoSize) {
+  addSvgElement (element, offsetX, offsetY, autoSize) {
     autoSize = autoSize === undefined ? this.autoSize : autoSize
 
     if (autoSize) {
-      resizeToElement(element)
+      this._resizeToElement(element)
     }
 
-    canvg(this.canvas, svgFixIE(element.innerHTML), {ignoreMouse: true, offsetX: offsetX, offsetY: offsetY})
-    self.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
+    canvg(this.canvas, this._svgFixIE(element.innerHTML), {ignoreMouse: true, offsetX: offsetX, offsetY: offsetY})
+    this.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
   }
 
-  this.addElement = function (element, offsetX, offsetY, color, alpha, autoSize) {
+  addElement (element, offsetX, offsetY, color, alpha, autoSize) {
     // if((!element.textContent && !element.value) || (element.textContent === "" && element.value === ""))
     //   return;
 
@@ -443,10 +444,10 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     let paddingRight = styleProperties.getPropertyValue('padding-right')
     let backgroundImage = styleProperties.getPropertyValue('background-image')
 
-    let width = getWidth(element, styleProperties)
-    let height = getHeight(element, styleProperties)
+    let width = this._getWidth(element, styleProperties)
+    let height = this._getHeight(element, styleProperties)
 
-    if (isDesktopChrome) {
+    if (this._isDesktopChrome) {
       if (element.parentElement) {
         element.parentElement.appendChild(this.canvas)
       }
@@ -454,8 +455,8 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     }
 
     fontSize = Number(fontSize.replace('px', ''))
-    lineHeight = lineHeight === 'normal' ? getLineHeight(element) : Number(lineHeight.replace('px', ''))
-    letterSpacing = isDesktopChrome || letterSpacing === 'normal' ? 0 : Number(letterSpacing.replace('px', ''))
+    lineHeight = lineHeight === 'normal' ? this._getLineHeight(element) : Number(lineHeight.replace('px', ''))
+    letterSpacing = this._isDesktopChrome || letterSpacing === 'normal' ? 0 : Number(letterSpacing.replace('px', ''))
     paddingTop = Number(paddingTop.replace('px', ''))
     paddingLeft = Number(paddingLeft.replace('px', ''))
     paddingRight = Number(paddingRight.replace('px', ''))
@@ -539,8 +540,8 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
       text = element.textContent || element.value
     }
 
-    drawBackground(styleProperties, width, height, alpha)
-    drawBorder(styleProperties, width, height, color, alpha)
+    this._this._drawBackground(styleProperties, width, height, alpha)
+    this._drawBorder(styleProperties, width, height, color, alpha)
 
     color = color || styleProperties.getPropertyValue('color')
     // color = getAlphaColor(color, alpha);
@@ -559,10 +560,10 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
       // console.log(imageSource);
 
       let image = new Image()
-      image.onload = function () {
-        drawBackgroundImage(image, styleProperties, width, height, alpha)
-        self.dispatchEvent(new Event(HTMLCanvas.EVENT_LOAD))
-        self.addText(text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, offsetX, offsetY)
+      image.onload = () => {
+        this._drawBackgroundImage(image, styleProperties, width, height, alpha)
+        this.dispatchEvent(new Event(HTMLCanvas.EVENT_LOAD))
+        this.addText(text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, offsetX, offsetY)
       }
       image.src = imageSource
     } else {
@@ -570,7 +571,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
       this.addText(text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, offsetX, offsetY)
     }
 
-    if (isDesktopChrome) {
+    if (this._isDesktopChrome) {
       if (element.parentElement) {
         element.parentElement.removeChild(this.canvas)
       }
@@ -580,7 +581,7 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     this.context.globalAlpha = 1
   }
 
-  this.addText = function (text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, x, y) {
+  addText (text, textAlign, fontFamily, fontSize, fontStyle, color, lineHeight, letterSpacing, x, y) {
     fontFamily = fontFamily || '\'serif\''
     textAlign = textAlign || 'left'
     fontSize = fontSize || 16
@@ -614,10 +615,10 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     }
 
     this.context.restore()
-    self.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
+    this.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
   }
 
-  this.addTextLine = function (text, x, y, letterSpacing, saveRestore, dispatch) {
+  addTextLine (text, x, y, letterSpacing, saveRestore, dispatch) {
     if (letterSpacing === 'normal' || letterSpacing === 0) {
       // console.log(letterSpacing);
       // this.context.fillText(text, x, y);
@@ -672,11 +673,11 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     }
 
     if (dispatch) {
-      self.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
+      this.dispatchEvent(new Event(HTMLCanvas.EVENT_UPDATE))
     }
   }
 
-  this.setSize = function (width, height) {
+  setSize (width, height) {
     if (width === this.canvas.width && height === this.canvas.height) {
       return
     }
@@ -693,15 +694,14 @@ function HTMLCanvas (element, canvas, autoSize, useImageSize) {
     this.dispatchEvent(new Event(HTMLCanvas.EVENT_RESIZE, {width: width * scale, height: height * scale}))
   }
 
-  this.clear = function () {
+  clear () {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
-  this.isLoading = function () {
-    return imageLoader.isLoading()
+  isLoading () {
+    return this.imageLoader.isLoading()
   }
 }
-HTMLCanvas.prototype = Object.create(dm.HTMLElement.prototype)
 HTMLCanvas.EVENT_UPDATE = 'update'
 HTMLCanvas.EVENT_LOAD = 'load'
 HTMLCanvas.EVENT_INVALIDATE = 'invalidate'

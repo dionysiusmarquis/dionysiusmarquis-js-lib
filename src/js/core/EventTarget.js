@@ -5,70 +5,76 @@
  * @param {any} data - Any kind of data stored in this Event.
  * @param {bool} bubble - If "true" the Event is bubbeling.
  */
-function Event (type, data, bubble) {
-  this.target = null
-  this.currentTarget = null
-  this.type = type
-  this.data = data
-  this.bubble = bubble
-  this.isBubbling = false
+class Event {
+  constructor (type, data = null, bubble = false) {
+    this.target = null
+    this.currentTarget = null
+    this.type = type
+    this.data = data
+    this.bubble = bubble
+    this.isBubbling = false
+  }
 
-  this.getType = function () {
+  getType () {
     return this.type
   }
 
-  this.getdata = function () {
+  getdata () {
     return this.data
   }
 
-  this.getBubble = function () {
+  getBubble () {
     return this.bubble
   }
 }
 
-function EventTarget () {
-  let listeners = {}
-  let listenersdata = {}
-  let listenersCallees = {}
+class EventTarget {
+  constructor () {
+    this._listeners = {}
+    this._listenersData = {}
+    this._listenersCallees = {}
 
-//  console.info("EventTarget constructor", self);
+    this.isEventDispatcher = true
+  }
+
+//  console.info("EventTarget constructor", this);
 
   /* function bubbleEvent (parent) {
 
    } */
 
-  this.addEventListener = function (type, listener, callee, data) {
-    if (!listeners[type]) {
-      listeners[type] = []
-      listenersdata[type] = []
-      listenersCallees[type] = []
+  addEventListener (type, listener, callee = null, data = null) {
+    if (!this._listeners[type]) {
+      this._listeners[type] = []
+      this._listenersData[type] = []
+      this._listenersCallees[type] = []
     }
 
-    if (listeners.length === 0 || listeners[type].indexOf(listener) === -1) {
-      listeners[type].push(listener)
-      listenersdata[type].push(data)
-      listenersCallees[type].push(callee)
+    if (this._listeners.length === 0 || this._listeners[type].indexOf(listener) === -1) {
+      this._listeners[type].push(listener)
+      this._listenersData[type].push(data)
+      this._listenersCallees[type].push(callee)
     }
   }
 
-  this.removeEventListener = function (type, listener) {
-    if (!listeners[type]) {
+  removeEventListener (type, listener) {
+    if (!this._listeners[type]) {
       return
     }
 
-    let index = listeners[type].indexOf(listener)
+    let index = this._listeners[type].indexOf(listener)
     if (index !== -1) {
-      listeners[type].splice(index, 1)
-      listenersdata[type].splice(index, 1)
+      this._listeners[type].splice(index, 1)
+      this._listenersData[type].splice(index, 1)
     }
   }
 
-  this.hasEventListener = function (type, listener) {
-    return listeners.length > 0 && listeners[type] && listeners[type].indexOf(listener) !== -1
+  hasEventListener (type, listener) {
+    return this._listeners.length > 0 && this._listeners[type] && this._listeners[type].indexOf(listener) !== -1
   }
 
-  this.dispatchEvent = function (event) {
-//  console.info(event, event.type, listeners);
+  dispatchEvent (event) {
+//  console.info(event, event.type, this._listeners);
 
     if (!event || (event && (!event.type || event.type === ''))) {
       return
@@ -79,12 +85,12 @@ function EventTarget () {
     }
     event.target = this
 
-    if (listeners[event.type] && listeners[event.type].length > 0) {
-      let listener = listeners[event.type]
+    if (this._listeners[event.type] && this._listeners[event.type].length > 0) {
+      let listener = this._listeners[event.type]
       let i, j, data, dataKeys, callee, key
       for (i = 0; i < listener.length; i++) {
-        data = listenersdata[event.type][i]
-        callee = listenersCallees[event.type][i]
+        data = this._listenersData[event.type][i]
+        callee = this._listenersCallees[event.type][i]
         if (data) {
           if (!event.data) {
             event.data = data
@@ -104,8 +110,6 @@ function EventTarget () {
       this.parent.dispatchEvent(event)
     }
   }
-
-  this.isEventDispatcher = true
 }
 
-export {Event, EventTarget}
+export { Event, EventTarget }

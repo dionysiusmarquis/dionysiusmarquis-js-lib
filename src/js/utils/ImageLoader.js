@@ -1,126 +1,130 @@
 import * as dm from './../../../core'
 
-function ImageLoader (autoStart, invalidateAll) {
-  dm.EventTarget.call(this)
+class ImageLoader extends dm.EventTarget {
+  constructor (autoStart, invalidateAll = false) {
+    super()
 
-  let self = this
-  let images = {}
+    this._images = {}
+    this._invalidateAll = invalidateAll
 
-  if (autoStart !== false) {
-    detectSrcChange()
+    this._autoStart = autoStart
+
+    if (autoStart !== false) {
+      this._detectSrcChange()
+    }
   }
 
-  function imageHandler (event) {
+  _imageHandler (event) {
     switch (event.type) {
       case ImageLoaderImage.EVENT_ERROR:
-        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_ERROR, event.target))
+        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_ERROR, event.target))
         break
 
       case ImageLoaderImage.EVENT_LOAD:
-        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
+        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
 
-        if (!self.isLoading()) {
-          self.dispatchEvent(new dm.Event(ImageLoader.EVENT_LOAD))
+        if (!this.isLoading()) {
+          this.dispatchEvent(new dm.Event(ImageLoader.EVENT_LOAD))
         }
         break
     }
   }
 
-  function detectSrcChange () {
-    if (images) {
-      requestAnimationFrame(detectSrcChange)
+  _detectSrcChange () {
+    if (this._images) {
+      requestAnimationFrame(() => this._detectSrcChange())
     }
 
     let src, image, imageElement
-    for (src in images) {
-      image = images[src]
+    for (src in this._images) {
+      image = this._images[src]
       imageElement = image.image
       if (imageElement.currentSrc && imageElement.currentSrc !== image.currentSrc) {
         // console.log("New currentSrc:", Utils.Image.getSrc(imageElement, true));
         image.currentSrc = imageElement.currentSrc
 
-        if (!self.numLoading() && invalidateAll) {
-          self.invalidate()
+        if (!this.numLoading() && this._invalidateAll) {
+          this.invalidate()
         }
 
-        self.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
+        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
 
         image.load()
       }
     }
   }
 
-  this.add = function (image, callback) {
+  add (image, callback) {
     if (!image.src) {
       console.warning('ImageLoader: add() No valid image')
       return
     }
-    images[image.src] = new ImageLoaderImage(image, callback)
-    images[image.src].addEventListener(ImageLoaderImage.EVENT_LOAD, imageHandler)
-    images[image.src].addEventListener(ImageLoaderImage.EVENT_ERROR, imageHandler)
+    this._images[image.src] = new ImageLoaderImage(image, callback)
+    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_ERROR, event => this._imageHandler(event))
   }
 
-  this.remove = function (src) {
-    let image = images[src]
+  remove (src) {
+    let image = this._images[src]
     if (image) {
-      image.removeEventListener(ImageLoaderImage.EVENT_LOAD, imageHandler)
-      image.removeEventListener(ImageLoaderImage.EVENT_ERROR, imageHandler)
-      images[image.src] = null
-      delete images[image.src]
+      image.removeEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+      image.removeEventListener(ImageLoaderImage.EVENT_ERROR, event => this._imageHandler(event))
+      this._images[image.src] = null
+      delete this._images[image.src]
     }
   }
 
-  this.get = function (src) {
-    return images[src]
+  get (src) {
+    return this._images[src]
   }
 
-  this.init = function (element) {
-    if (self.isLoading()) {
-      self.destroy()
+  init (element, query = 'img') {
+    if (this.isLoading()) {
+      this.destroy()
     }
 
-    if (!images) {
-      images = {}
+    if (!this._images) {
+      this._images = {}
 
-      if (autoStart !== false) {
-        detectSrcChange()
+      if (this._autoStart !== false) {
+        this._detectSrcChange()
       }
     }
 
-    let imageElements = element.querySelectorAll('img')
+    let imageElements = element.querySelectorAll(query)
 
     let i
     for (i = 0; i < imageElements.length; i++) {
-      self.add(imageElements[i])
+      this.add(imageElements[i])
     }
   }
 
-  this.initWithHtml = function (html) {
+  initWithHtml (html, query = 'img') {
     let domParser = document.createElement('div')
     domParser.innerHTML = html
 
-    self.init(domParser)
+    this.init(domParser, query)
   }
 
-  this.load = function () {
-    if (!autoStart) {
-      detectSrcChange()
+  load () {
+    if (!this._autoStart) {
+      this._detectSrcChange()
     }
   }
 
-  this.stop = function () {
+  stop () {
     let src
-    for (src in images) {
-      images[src].stop()
+    for (src in this._images) {
+      this._images[src].stop()
     }
   }
 
-  this.isLoading = function () {
+  isLoading () {
     let isLoading = false
 
     let src
-    for (src in images) {
-      if (!isLoading && images[src].isLoading()) {
+    for (src in this._images) {
+      if (!isLoading && this._images[src].isLoading()) {
         isLoading = true
         break
       }
@@ -129,12 +133,12 @@ function ImageLoader (autoStart, invalidateAll) {
     return isLoading
   }
 
-  this.numLoading = function () {
+  numLoading () {
     let numLoading = 0
 
     let src
-    for (src in images) {
-      if (images[src].isLoading()) {
+    for (src in this._images) {
+      if (this._images[src].isLoading()) {
         numLoading++
       }
     }
@@ -142,12 +146,12 @@ function ImageLoader (autoStart, invalidateAll) {
     return numLoading
   }
 
-  this.numLoaded = function () {
+  numLoaded () {
     let numLoaded = 0
 
     let src
-    for (src in images) {
-      if (!images[src].isLoading()) {
+    for (src in this._images) {
+      if (!this._images[src].isLoading()) {
         numLoaded++
       }
     }
@@ -155,13 +159,13 @@ function ImageLoader (autoStart, invalidateAll) {
     return numLoaded
   }
 
-  this.percentageLoaded = function () {
+  percentageLoaded () {
     let numImages = 0
     let numLoaded = 0
 
     let src
-    for (src in images) {
-      if (!images[src].isLoading()) {
+    for (src in this._images) {
+      if (!this._images[src].isLoading()) {
         numLoaded++
       }
       numImages++
@@ -170,105 +174,113 @@ function ImageLoader (autoStart, invalidateAll) {
     return numLoaded / numImages
   }
 
-  this.destroy = function () {
+  destroy () {
     let src
-    for (src in images) {
-      self.remove(src)
+    for (src in this._images) {
+      this.remove(src)
     }
 
-    images = null
+    this._images = null
   }
 
-  this.invalidate = function () {
+  invalidate () {
     let src
-    for (src in images) {
-      images[src].invalidate()
+    for (src in this._images) {
+      this._images[src].invalidate()
     }
   }
 }
-ImageLoader.prototype = Object.create(dm.EventTarget.prototype)
 ImageLoader.EVENT_IMAGE_LOAD = 'imageload'
 ImageLoader.EVENT_LOAD = 'load'
 ImageLoader.EVENT_ERROR = 'error'
 ImageLoader.EVENT_INVALIDATE = 'invalidate'
 
-function ImageLoaderImage (image, callback) {
-  dm.EventTarget.call(this)
+class ImageLoaderImage extends dm.EventTarget {
+  constructor (image, callback) {
+    super()
 
-  if (!image) {
-    console.error('ImageLoaderImage: no valid image.')
+    if (!image) {
+      console.error('ImageLoaderImage: no valid image.')
+    }
+
+    this.image = image
+    this._callback = callback
+    this.currentSrc = null
+
+    this._loadingImage = null
+    this._isLoading = image.srcset !== ''
+
+    this._boundLoadingImageHandler = event => this._loadingImageHandler(event)
+
+    if (!this._isLoading) {
+      this.load()
+    }
+
+    // let timeout = setTimeout(function() {console.warn("ImageLoaderImage: currentSrc did not change for ", image.src, image.currentSrc)}, 5000);
   }
 
-  let self = this
-
-  this.image = image
-  this.callback = callback
-  this.currentSrc = null
-
-  let loadingImage = null
-  let loading = image.srcset !== ''
-
-  // let timeout = setTimeout(function() {console.warn("ImageLoaderImage: currentSrc did not change for ", image.src, image.currentSrc)}, 5000);
-
-  function loadingImageHandler (event) {
+  _loadingImageHandler (event) {
     switch (event.type) {
       case 'load':
-        self.stop()
+        this.stop()
 
-        if (self.callback) {
-          self.callback(self)
+        if (this._callback) {
+          this._callback(this)
         }
 
-        self.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_LOAD))
+        this.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_LOAD))
         break
 
       case 'error':
-        self.stop()
-        self.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_ERROR))
-        console.error('ImageLoaderImage: Error loading image', image.src, 'using', event.target.src)
+        this.stop()
+        this.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_ERROR))
+        console.error('ImageLoaderImage: Error this._isLoading image', this.image.src, 'using', event.target.src)
         break
     }
   }
 
-  this.load = function () {
-    if (!image.srcset || (image.srcset && image.currentSrc)) {
+  load () {
+    if (!this.image.srcset || (this.image.srcset && this.image.currentSrc)) {
       // clearTimeout(timeout);
 
-      if (loadingImage) {
-        self.stop()
+      if (this._loadingImage) {
+        this.stop()
       }
 
-      loadingImage = new Image()
-      loadingImage.addEventListener('load', loadingImageHandler)
-      loadingImage.addEventListener('error', loadingImageHandler)
-      loadingImage.src = image.srcset ? self.currentSrc : image.src
-      loading = true
+      let src = this.image.srcset ? this.currentSrc : this.image.src
+
+      if (!src) {
+        console.error('ImageLoaderImage: Error this._isLoading image, src is', src === '' ? 'empty string' : src)
+      }
+
+      this._loadingImage = new Image()
+      this._loadingImage.addEventListener('load', this._boundLoadingImageHandler)
+      this._loadingImage.addEventListener('error', this._boundLoadingImageHandler)
+      this._loadingImage.src = src
+      this._isLoading = true
     }
   }
 
-  this.stop = function () {
-    if (loadingImage) {
-      loadingImage.removeEventListener('load', loadingImageHandler)
-      loadingImage.removeEventListener('error', loadingImageHandler)
-      loadingImage.src = ''
-      loadingImage = null
+  stop () {
+    if (this._loadingImage) {
+      this._loadingImage.removeEventListener('load', this._boundLoadingImageHandler)
+      this._loadingImage.removeEventListener('error', this._boundLoadingImageHandler)
+      this._loadingImage.src = ''
+      this._loadingImage = null
     }
-    loading = false
+    this._isLoading = false
   }
 
-  this.isLoading = function () {
-    return loading
+  isLoading () {
+    return this._isLoading
   }
 
-  this.invalidate = function () {
+  invalidate () {
     this.stop()
-    loading = image.srcset !== ''
+    this._isLoading = this.image.srcset !== ''
   }
-
-  this.load()
 }
-ImageLoaderImage.prototype = Object.create(dm.EventTarget.prototype)
 ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
-export {ImageLoader, ImageLoaderImage}
+export { ImageLoader, ImageLoaderImage }
