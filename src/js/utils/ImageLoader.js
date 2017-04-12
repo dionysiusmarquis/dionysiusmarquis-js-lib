@@ -1,18 +1,41 @@
 import * as dm from './../../../core'
+import ImageCanvas from './ImageCanvas'
 
 class ImageLoader extends dm.EventTarget {
-  constructor (autoStart, invalidateAll = false) {
+  constructor (autoStart = true, invalidateAll = false, imageClass = ImageLoaderImage) {
     super()
 
     this._images = {}
     this._invalidateAll = invalidateAll
+    this._imageClass = imageClass
 
     this._autoStart = autoStart
 
-    if (autoStart !== false) {
+    // this._boundImageLoadHandler = event => this._checkSrcChange(event.target)
+    this._boundImageHandler = event => this._imageHandler(event)
+
+    if (autoStart) {
       this._detectSrcChange()
     }
   }
+
+  /* _checkSrcChange (imageElement) {
+   if (this._images) {
+   let image = this._images[imageElement.src]
+   if (imageElement.currentSrc && imageElement.currentSrc !== image.currentSrc) {
+   // console.log("New currentSrc:", Utils.Image.getSrc(imageElement, true));
+   image.currentSrc = imageElement.currentSrc
+
+   if (!this.numLoading() && this._invalidateAll) {
+   this.invalidate()
+   }
+
+   this.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
+
+   image.load()
+   }
+   }
+   } */
 
   _imageHandler (event) {
     switch (event.type) {
@@ -29,6 +52,15 @@ class ImageLoader extends dm.EventTarget {
         break
     }
   }
+
+  /* _detectSrcChange () {
+   let src, imageElement
+   for (src in this._images) {
+   imageElement = this._images[src].image
+   imageElement.addEventListener('load', this._boundImageLoadHandler)
+   this._checkSrcChange(imageElement)
+   }
+   } */
 
   _detectSrcChange () {
     if (this._images) {
@@ -59,16 +91,17 @@ class ImageLoader extends dm.EventTarget {
       console.warning('ImageLoader: add() No valid image')
       return
     }
-    this._images[image.src] = new ImageLoaderImage(image, callback)
-    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
-    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_ERROR, event => this._imageHandler(event))
+    this._images[image.src] = new this._imageClass(image, callback)
+    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundImageHandler)
+    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_ERROR, this._boundImageHandler)
   }
 
   remove (src) {
     let image = this._images[src]
     if (image) {
-      image.removeEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
-      image.removeEventListener(ImageLoaderImage.EVENT_ERROR, event => this._imageHandler(event))
+      // image.image.removeEventListener('load', this._boundImageLoadHandler)
+      image.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundImageHandler)
+      image.removeEventListener(ImageLoaderImage.EVENT_ERROR, this._boundImageHandler)
       this._images[image.src] = null
       delete this._images[image.src]
     }
@@ -86,7 +119,7 @@ class ImageLoader extends dm.EventTarget {
     if (!this._images) {
       this._images = {}
 
-      if (this._autoStart !== false) {
+      if (this._autoStart) {
         this._detectSrcChange()
       }
     }
@@ -115,6 +148,7 @@ class ImageLoader extends dm.EventTarget {
   stop () {
     let src
     for (src in this._images) {
+      // this._images[src].image.removeEventListener('load', this._boundImageLoadHandler)
       this._images[src].stop()
     }
   }
@@ -216,7 +250,7 @@ class ImageLoaderImage extends dm.EventTarget {
       this.load()
     }
 
-    // let timeout = setTimeout(function() {console.warn("ImageLoaderImage: currentSrc did not change for ", image.src, image.currentSrc)}, 5000);
+    // this._timeout = setTimeout(() => { console.warn('ImageLoaderImage: currentSrc did not change for ', image.src, image.currentSrc) }, 5000)
   }
 
   _loadingImageHandler (event) {
@@ -241,7 +275,7 @@ class ImageLoaderImage extends dm.EventTarget {
 
   load () {
     if (!this.image.srcset || (this.image.srcset && this.image.currentSrc)) {
-      // clearTimeout(timeout);
+      // clearTimeout(this._timeout)
 
       if (this._loadingImage) {
         this.stop()
@@ -283,4 +317,64 @@ class ImageLoaderImage extends dm.EventTarget {
 ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
-export { ImageLoader, ImageLoaderImage }
+class ImageLoaderLazyImage extends ImageLoaderImage {
+  constructor (image, callback) {
+    super(image, callback)
+
+    if (!image.classList.contains('lazyload')) {
+      return
+    }
+
+    this._dataSrc = image.getAttribute('data-src')
+    this._dataSrcset = image.getAttribute('data-srcset')
+
+    if (this._dataSrc || this._dataSrcset) {
+      this._boundLowResSrcHandler = event => this._lowResSrcHandler(event)
+      this.addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
+    }
+  }
+
+  _lowResSrcHandler (event) {
+    if (this._dataSrcset) {
+      this.image.setAttribute('srcset', this._dataSrcset)
+      this.image.removeAttribute('data-srcset')
+    }
+
+    if (this._dataSrc) {
+      this.image.setAttribute('src', this._dataSrc)
+    }
+
+    this.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
+  }
+}
+
+class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
+  constructor (image, callback) {
+    super(image, callback)
+
+    if (!image.classList.contains('lazyload') || !image.classList.contains('canvas-image')) {
+      return
+    }
+
+    let type = this.image.classList.contains('canvas-image--alpha-map') ? ImageCanvas.TYPE_MASKED_IMAGE : ImageCanvas.TYPE_IMAGE
+
+    this._imageCanvas = new ImageCanvas(image, type, !image.classList.contains('canvas-image--responsive'))
+    this._imageCanvas.canvas.className = image.className
+
+    image.style['display'] = 'none'
+    image.parentNode.insertBefore(this._imageCanvas.canvas, image)
+  }
+
+  _lowResSrcHandler (event) {
+    this._imageCanvas.update()
+    super._lowResSrcHandler(event)
+
+    this.addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+  }
+
+  _imageHandler (event) {
+    this._imageCanvas.update()
+  }
+}
+
+export { ImageLoader, ImageLoaderImage, ImageLoaderLazyImage, ImageLoaderImageCanvas }
