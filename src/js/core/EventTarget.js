@@ -31,8 +31,6 @@ class Event {
 class EventTarget {
   constructor () {
     this._listeners = {}
-    this._listenersData = {}
-    this._listenersCallees = {}
 
     this.isEventDispatcher = true
   }
@@ -43,17 +41,17 @@ class EventTarget {
 
    } */
 
+  _listenerIndex (listener, element) {
+    return element.listener === listener
+  }
+
   addEventListener (type, listener, callee = null, data = null) {
     if (!this._listeners[type]) {
       this._listeners[type] = []
-      this._listenersData[type] = []
-      this._listenersCallees[type] = []
     }
 
-    if (this._listeners.length === 0 || this._listeners[type].indexOf(listener) === -1) {
-      this._listeners[type].push(listener)
-      this._listenersData[type].push(data)
-      this._listenersCallees[type].push(callee)
+    if (this._listeners.length === 0 || this._listeners[type].findIndex(element => this._listenerIndex(listener, element)) === -1) {
+      this._listeners[type].push({listener, data, callee})
     }
   }
 
@@ -62,15 +60,14 @@ class EventTarget {
       return
     }
 
-    let index = this._listeners[type].indexOf(listener)
+    let index = this._listeners[type].findIndex(element => this._listenerIndex(listener, element))
     if (index !== -1) {
       this._listeners[type].splice(index, 1)
-      this._listenersData[type].splice(index, 1)
     }
   }
 
   hasEventListener (type, listener) {
-    return this._listeners.length > 0 && this._listeners[type] && this._listeners[type].indexOf(listener) !== -1
+    return this._listeners[type] && this._listeners[type].length > 0 && this._listeners[type].findIndex(element => this._listenerIndex(listener, element)) !== -1
   }
 
   dispatchEvent (event) {
@@ -86,11 +83,10 @@ class EventTarget {
     event.target = this
 
     if (this._listeners[event.type] && this._listeners[event.type].length > 0) {
-      let listener = this._listeners[event.type]
-      let i, j, data, dataKeys, callee, key
-      for (i = 0; i < listener.length; i++) {
-        data = this._listenersData[event.type][i]
-        callee = this._listenersCallees[event.type][i]
+      let listeners = [...this._listeners[event.type]]
+      let i, j, dataKeys, key
+      for (i = 0; i < listeners.length; i++) {
+        let {listener, data, callee} = listeners[i]
         if (data) {
           if (!event.data) {
             event.data = data
@@ -102,7 +98,7 @@ class EventTarget {
             }
           }
         }
-        listener[i].call(callee || this, event)
+        listener.call(callee || this, event)
       }
     }
     if (event.bubble && this.parent && this.parent.isEventDispatcher) {
