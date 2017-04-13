@@ -230,7 +230,7 @@ ImageLoader.EVENT_ERROR = 'error'
 ImageLoader.EVENT_INVALIDATE = 'invalidate'
 
 class ImageLoaderImage extends dm.EventTarget {
-  constructor (image, callback) {
+  constructor (image, callback = null) {
     super()
 
     if (!image) {
@@ -318,7 +318,7 @@ ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
 class ImageLoaderLazyImage extends ImageLoaderImage {
-  constructor (image, callback) {
+  constructor (image, autoload = false, callback = null) {
     super(image, callback)
 
     if (!image.classList.contains('lazyload')) {
@@ -328,6 +328,9 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
     this._dataSrc = image.getAttribute('data-src')
     this._dataSrcset = image.getAttribute('data-srcset')
 
+    this._autoload = autoload
+    this._isLowResLoaded = false
+
     if (this._dataSrc || this._dataSrcset) {
       this._boundLowResSrcHandler = event => this._lowResSrcHandler(event)
       this.addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
@@ -335,6 +338,14 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
   }
 
   _lowResSrcHandler (event) {
+    if (this._autoload) {
+      this._loadHiRes()
+    }
+
+    this.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
+  }
+
+  _loadHiRes () {
     if (this._dataSrcset) {
       this.image.setAttribute('srcset', this._dataSrcset)
       this.image.removeAttribute('data-srcset')
@@ -343,13 +354,11 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
     if (this._dataSrc) {
       this.image.setAttribute('src', this._dataSrc)
     }
-
-    this.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
   }
 }
 
 class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
-  constructor (image, callback) {
+  constructor (image, callback = null) {
     super(image, callback)
 
     if (!image.classList.contains('lazyload') || !image.classList.contains('canvas-image')) {
