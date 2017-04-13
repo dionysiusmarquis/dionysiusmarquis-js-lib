@@ -318,7 +318,7 @@ ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
 class ImageLoaderLazyImage extends ImageLoaderImage {
-  constructor (image, autoload = false, callback = null) {
+  constructor (image, autoload = true, callback = null) {
     super(image, callback)
 
     if (!image.classList.contains('lazyload')) {
@@ -329,7 +329,6 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
     this._dataSrcset = image.getAttribute('data-srcset')
 
     this._autoload = autoload
-    this._isLowResLoaded = false
 
     if (this._dataSrc || this._dataSrcset) {
       this._boundLowResSrcHandler = event => this._lowResSrcHandler(event)
@@ -358,8 +357,8 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
 }
 
 class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
-  constructor (image, callback = null) {
-    super(image, callback)
+  constructor (image, autoload = true, callback = null) {
+    super(image, autoload, callback)
 
     if (!image.classList.contains('lazyload') || !image.classList.contains('canvas-image')) {
       return
