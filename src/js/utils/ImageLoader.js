@@ -72,7 +72,8 @@ class ImageLoader extends dm.EventTarget {
       image = this._images[src]
       imageElement = image.image
       if (imageElement.currentSrc && imageElement.currentSrc !== image.currentSrc) {
-        // console.log("New currentSrc:", Utils.Image.getSrc(imageElement, true));
+        // console.log('New currentSrc:', Utils.Image.getSrc(imageElement, true))
+        // console.log('New currentSrc:', imageElement.currentSrc)
         image.currentSrc = imageElement.currentSrc
 
         if (!this.numLoading() && this._invalidateAll) {
@@ -86,14 +87,21 @@ class ImageLoader extends dm.EventTarget {
     }
   }
 
-  add (image, callback) {
-    if (!image.src) {
-      console.warning('ImageLoader: add() No valid image')
-      return
+  add (image, callback = null) {
+    // if (!image.src) {
+    //   console.warn('ImageLoader: add() No valid image')
+    //   return
+    // }
+
+    let src = image.src || image.getAttribute('data-src')
+    if (!src) {
+      console.error('ImageLoader: Error add image', this.image.src, 'using', event.target.src)
     }
-    this._images[image.src] = new this._imageClass(image, callback)
-    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundImageHandler)
-    this._images[image.src].addEventListener(ImageLoaderImage.EVENT_ERROR, this._boundImageHandler)
+    this._images[src] = new this._imageClass(image, callback)
+    this._images[src].addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundImageHandler)
+    this._images[src].addEventListener(ImageLoaderImage.EVENT_ERROR, this._boundImageHandler)
+
+    return this._images[src]
   }
 
   remove (src) {
@@ -102,8 +110,8 @@ class ImageLoader extends dm.EventTarget {
       // image.image.removeEventListener('load', this._boundImageLoadHandler)
       image.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundImageHandler)
       image.removeEventListener(ImageLoaderImage.EVENT_ERROR, this._boundImageHandler)
-      this._images[image.src] = null
-      delete this._images[image.src]
+      this._images[src] = null
+      delete this._images[src]
     }
   }
 
@@ -240,6 +248,7 @@ class ImageLoaderImage extends dm.EventTarget {
     this.image = image
     this._callback = callback
     this.currentSrc = null
+    this.src = image.src || image.getAttribute('data-src')
 
     this._loadingImage = null
     this._isLoading = image.srcset !== ''
@@ -268,12 +277,16 @@ class ImageLoaderImage extends dm.EventTarget {
       case 'error':
         this.stop()
         this.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_ERROR))
-        console.error('ImageLoaderImage: Error this._isLoading image', this.image.src, 'using', event.target.src)
+        console.error('ImageLoaderImage: Error load image', this.image.src, 'using', event.target.src)
         break
     }
   }
 
-  load () {
+  _getSrc () {
+    return this.image.srcset ? this.currentSrc : this.image.src
+  }
+
+  load (checkSrc = true) {
     if (!this.image.srcset || (this.image.srcset && this.image.currentSrc)) {
       // clearTimeout(this._timeout)
 
@@ -281,17 +294,19 @@ class ImageLoaderImage extends dm.EventTarget {
         this.stop()
       }
 
-      let src = this.image.srcset ? this.currentSrc : this.image.src
+      let src = this._getSrc()
 
-      if (!src) {
-        console.error('ImageLoaderImage: Error this._isLoading image, src is', src === '' ? 'empty string' : src)
+      if (checkSrc && !src) {
+        console.error('ImageLoaderImage: Error load image, src is', src === '' ? 'empty string' : src)
       }
 
-      this._loadingImage = new Image()
-      this._loadingImage.addEventListener('load', this._boundLoadingImageHandler)
-      this._loadingImage.addEventListener('error', this._boundLoadingImageHandler)
-      this._loadingImage.src = src
-      this._isLoading = true
+      if (src) {
+        this._loadingImage = new Image()
+        this._loadingImage.addEventListener('load', this._boundLoadingImageHandler)
+        this._loadingImage.addEventListener('error', this._boundLoadingImageHandler)
+        this._loadingImage.src = src
+        this._isLoading = true
+      }
     }
   }
 
@@ -318,10 +333,10 @@ ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
 class ImageLoaderLazyImage extends ImageLoaderImage {
-  constructor (image, autoload = true, callback = null) {
+  constructor (image, callback = null, autoload = true) {
     super(image, callback)
 
-    if (!image.classList.contains('lazyload')) {
+    if (!this.isLazyloaded) {
       return
     }
 
@@ -338,27 +353,34 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
 
   _lowResSrcHandler (event) {
     if (this._autoload) {
-      this._loadHiRes()
+      this.loadHiRes()
     }
 
     this.removeEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
   }
 
-  _loadHiRes () {
+  loadHiRes () {
     if (this._dataSrcset) {
       this.image.setAttribute('srcset', this._dataSrcset)
       this.image.removeAttribute('data-srcset')
-    }
-
-    if (this._dataSrc) {
+    } else if (this._dataSrc) {
       this.image.setAttribute('src', this._dataSrc)
+      this.image.removeAttribute('data-src')
     }
+  }
+
+  load (checkSrc = true) {
+    super.load(!this.isLazyloaded)
+  }
+
+  get isLazyloaded () {
+    return this.image.classList.contains('lazyload')
   }
 }
 
 class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
-  constructor (image, autoload = true, callback = null) {
-    super(image, autoload, callback)
+  constructor (image, callback = null, autoload = true) {
+    super(image, callback, autoload)
 
     if (!image.classList.contains('lazyload') || !image.classList.contains('canvas-image')) {
       return
