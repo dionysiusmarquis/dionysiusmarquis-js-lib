@@ -396,14 +396,20 @@ class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
   }
 
   _lowResSrcHandler (event) {
-    this._imageCanvas.update()
+    if (this._imageCanvas) {
+      this._imageCanvas.update()
+    }
     super._lowResSrcHandler(event)
 
-    this.addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+    if (this._imageCanvas) {
+      this.addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+    }
   }
 
   _imageHandler (event) {
-    this._imageCanvas.update()
+    if (this._imageCanvas) {
+      this._imageCanvas.update()
+    }
   }
 }
 
