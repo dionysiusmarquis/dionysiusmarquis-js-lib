@@ -378,7 +378,7 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
   }
 }
 
-class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
+class ImageLoaderCanvasImage extends ImageLoaderLazyImage {
   constructor (image, callback = null, autoload = true) {
     super(image, callback, autoload)
 
@@ -413,4 +413,4 @@ class ImageLoaderImageCanvas extends ImageLoaderLazyImage {
   }
 }
 
-export { ImageLoader, ImageLoaderImage, ImageLoaderLazyImage, ImageLoaderImageCanvas }
+export { ImageLoader, ImageLoaderImage, ImageLoaderLazyImage, ImageLoaderCanvasImage }

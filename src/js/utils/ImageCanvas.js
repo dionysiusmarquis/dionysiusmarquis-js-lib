@@ -72,6 +72,8 @@ class ImageCanvas extends dm.EventTarget {
         this.drawImage()
         break
     }
+
+    this.dispatchEvent(new dm.Event(ImageCanvas.EVENT_UPDATE))
   }
 
   setSize (width, height) {
@@ -88,7 +90,6 @@ class ImageCanvas extends dm.EventTarget {
     }
 
     this.resize()
-    this.dispatchEvent(new dm.Event(ImageCanvas.EVENT_UPDATE))
   }
 
   resize () {}
