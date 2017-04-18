@@ -345,6 +345,12 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
 
     this._autoload = autoload
 
+    if ((this._dataSrc && !image.getAttribute('src')) || (this._dataSrcset && !image.getAttribute('srcset'))) {
+      if (this._autoload) {
+        this.loadHiRes()
+      }
+    }
+
     if (this._dataSrc || this._dataSrcset) {
       this._boundLowResSrcHandler = event => this._lowResSrcHandler(event)
       this.addEventListener(ImageLoaderImage.EVENT_LOAD, this._boundLowResSrcHandler)
