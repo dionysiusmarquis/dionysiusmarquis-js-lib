@@ -232,6 +232,7 @@ class ImageLoader extends dm.EventTarget {
     }
   }
 }
+
 ImageLoader.EVENT_IMAGE_LOAD = 'imageload'
 ImageLoader.EVENT_LOAD = 'load'
 ImageLoader.EVENT_ERROR = 'error'
@@ -329,6 +330,7 @@ class ImageLoaderImage extends dm.EventTarget {
     this._isLoading = this.image.srcset !== ''
   }
 }
+
 ImageLoaderImage.EVENT_LOAD = 'load'
 ImageLoaderImage.EVENT_ERROR = 'error'
 
@@ -342,6 +344,7 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
 
     this._dataSrc = image.getAttribute('data-src')
     this._dataSrcset = image.getAttribute('data-srcset')
+    this._dataSizes = image.getAttribute('data-sizes')
 
     this._autoload = autoload
 
@@ -366,6 +369,10 @@ class ImageLoaderLazyImage extends ImageLoaderImage {
   }
 
   loadHiRes () {
+    if (this._dataSizes) {
+      this.image.setAttribute('sizes', this._dataSizes)
+      this.image.removeAttribute('data-sizes')
+    }
     if (this._dataSrcset) {
       this.image.setAttribute('srcset', this._dataSrcset)
       this.image.removeAttribute('data-srcset')
