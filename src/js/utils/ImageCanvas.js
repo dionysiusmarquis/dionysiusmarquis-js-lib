@@ -1,6 +1,6 @@
-import * as dm from './../../../core'
+import {Event, EventTarget} from './../core/EventTarget'
 
-class ImageCanvas extends dm.EventTarget {
+class ImageCanvas extends EventTarget {
   constructor (image, type, sizeAttributes = false) {
     super()
 
@@ -73,7 +73,7 @@ class ImageCanvas extends dm.EventTarget {
         break
     }
 
-    this.dispatchEvent(new dm.Event(ImageCanvas.EVENT_UPDATE))
+    this.dispatchEvent(new Event(ImageCanvas.EVENT_UPDATE))
   }
 
   setSize (width, height) {

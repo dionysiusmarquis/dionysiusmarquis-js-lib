@@ -1,7 +1,7 @@
-import * as dm from './../../../core'
+import {Event, EventTarget} from './../core/EventTarget'
 import ImageCanvas from './ImageCanvas'
 
-class ImageLoader extends dm.EventTarget {
+class ImageLoader extends EventTarget {
   constructor (autoStart = true, invalidateAll = false, imageClass = ImageLoaderImage) {
     super()
 
@@ -30,7 +30,7 @@ class ImageLoader extends dm.EventTarget {
    this.invalidate()
    }
 
-   this.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
+   this.dispatchEvent(new Event(ImageLoader.EVENT_INVALIDATE, image))
 
    image.load()
    }
@@ -40,14 +40,14 @@ class ImageLoader extends dm.EventTarget {
   _imageHandler (event) {
     switch (event.type) {
       case ImageLoaderImage.EVENT_ERROR:
-        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_ERROR, event.target))
+        this.dispatchEvent(new Event(ImageLoader.EVENT_ERROR, event.target))
         break
 
       case ImageLoaderImage.EVENT_LOAD:
-        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
+        this.dispatchEvent(new Event(ImageLoader.EVENT_IMAGE_LOAD, event.target))
 
         if (!this.isLoading()) {
-          this.dispatchEvent(new dm.Event(ImageLoader.EVENT_LOAD))
+          this.dispatchEvent(new Event(ImageLoader.EVENT_LOAD))
         }
         break
     }
@@ -80,7 +80,7 @@ class ImageLoader extends dm.EventTarget {
           this.invalidate()
         }
 
-        this.dispatchEvent(new dm.Event(ImageLoader.EVENT_INVALIDATE, image))
+        this.dispatchEvent(new Event(ImageLoader.EVENT_INVALIDATE, image))
 
         image.load()
       }
@@ -238,7 +238,7 @@ ImageLoader.EVENT_LOAD = 'load'
 ImageLoader.EVENT_ERROR = 'error'
 ImageLoader.EVENT_INVALIDATE = 'invalidate'
 
-class ImageLoaderImage extends dm.EventTarget {
+class ImageLoaderImage extends EventTarget {
   constructor (image, callback = null) {
     super()
 
@@ -272,12 +272,12 @@ class ImageLoaderImage extends dm.EventTarget {
           this._callback(this)
         }
 
-        this.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_LOAD))
+        this.dispatchEvent(new Event(ImageLoaderImage.EVENT_LOAD))
         break
 
       case 'error':
         this.stop()
-        this.dispatchEvent(new dm.Event(ImageLoaderImage.EVENT_ERROR))
+        this.dispatchEvent(new Event(ImageLoaderImage.EVENT_ERROR))
         console.error('ImageLoaderImage: Error load image', this.image.src, 'using', event.target.src)
         break
     }

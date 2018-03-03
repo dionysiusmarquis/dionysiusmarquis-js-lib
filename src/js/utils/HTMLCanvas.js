@@ -1,9 +1,9 @@
 import canvg from 'canvg-fixed'
 
-import * as dm from './../../../core'
+import HTMLElement from './../core/HTMLElement'
 import {ImageLoader} from './../utils/ImageLoader'
 
-class HTMLCanvas extends dm.HTMLElement {
+class HTMLCanvas extends HTMLElement {
   constructor (element, canvas, autoSize = true, useImageSize = false) {
     super(element)
 

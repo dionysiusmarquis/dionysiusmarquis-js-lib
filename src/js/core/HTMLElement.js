@@ -1,7 +1,7 @@
 import { ObjectUtil } from './../utils/Utils'
-import * as dm from './EventTarget'
+import {Event, EventTarget} from './EventTarget'
 
-class HTMLElement extends dm.EventTarget {
+class HTMLElement extends EventTarget {
   constructor (element, id, className, style) {
     super()
     this.element = null
@@ -67,7 +67,7 @@ class HTMLElement extends dm.EventTarget {
       transition[1].call(transition[2] || this)
     }
 
-    this.dispatchEvent(new dm.Event('transitionend', event))
+    this.dispatchEvent(new Event('transitionend', event))
   }
 
   _animationEndListener (event) {
@@ -75,7 +75,7 @@ class HTMLElement extends dm.EventTarget {
       return
     }
 
-    this.dispatchEvent(new dm.Event('animationend', event))
+    this.dispatchEvent(new Event('animationend', event))
   }
 
   _fullscreenChangeHandler (event) {
@@ -86,7 +86,7 @@ class HTMLElement extends dm.EventTarget {
 
     this._isFullscreen = isFullscreen
 
-    this.dispatchEvent(new dm.Event('fullscreenchange', {isFullscreen: isFullscreen}))
+    this.dispatchEvent(new Event('fullscreenchange', {isFullscreen: isFullscreen}))
   }
 
   _validateProperty (property, lowercase) {
