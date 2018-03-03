@@ -395,7 +395,7 @@ class ImageLoaderCanvasImage extends ImageLoaderLazyImage {
   constructor (image, callback = null, autoload = true) {
     super(image, callback, autoload)
 
-    if (!image.classList.contains('lazyload') || !image.classList.contains('canvas-image')) {
+    if (!this.isLazyloaded && !image.classList.contains('canvas-image')) {
       return
     }
 
@@ -406,6 +406,10 @@ class ImageLoaderCanvasImage extends ImageLoaderLazyImage {
 
     image.style['display'] = 'none'
     image.parentNode.insertBefore(this._imageCanvas.canvas, image)
+
+    if (!this.isLazyloaded) {
+      this.addEventListener(ImageLoaderImage.EVENT_LOAD, event => this._imageHandler(event))
+    }
   }
 
   _lowResSrcHandler (event) {
